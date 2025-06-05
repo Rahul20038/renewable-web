@@ -1,9 +1,75 @@
+"use client";
+
 import React from 'react';
 import { Sun } from 'lucide-react';
+import { WorldMap } from "@/components/ui/world-map";
+import { motion } from "framer-motion";
 
 const Footer: React.FC = () => {
   return (
     <footer className="bg-gray-900 text-white">
+      {/* World Map Section (from WorldMapDemo) */}
+      <section className="py-1 dark:bg-black bg-gray-900 w-full">
+        <div className="max-w-7xl mx-auto text-center">
+          <p className="font-bold text-xl md:text-4xl dark:text-white text-white">
+            Remote{" "}
+            <span className="text-neutral-400">
+              {"Connectivity".split("").map((word, idx) => (
+                <motion.span
+                  key={idx}
+                  className="inline-block"
+                  initial={{ x: -10, opacity: 0 }}
+                  animate={{ x: 0, opacity: 1 }}
+                  transition={{ duration: 0.5, delay: idx * 0.04 }}
+                >
+                  {word}
+                </motion.span>
+              ))}
+            </span>
+          </p>
+          <p className="text-sm md:text-lg text-neutral-500 max-w-2xl mx-auto py-4">
+            Break free from traditional boundaries. Work from anywhere, at the
+            comfort of your own studio apartment. Perfect for Nomads and
+            Travellers.
+          </p>
+        </div>
+        <WorldMap
+          dots={[
+            {
+              start: {
+                lat: 64.2008,
+                lng: -149.4937,
+              }, // Alaska (Fairbanks)
+              end: {
+                lat: 34.0522,
+                lng: -118.2437,
+              }, // Los Angeles
+            },
+            {
+              start: { lat: 64.2008, lng: -149.4937 }, // Alaska (Fairbanks)
+              end: { lat: -15.7975, lng: -47.8919 }, // Brazil (Brasília)
+            },
+            {
+              start: { lat: -15.7975, lng: -47.8919 }, // Brazil (Brasília)
+              end: { lat: 38.7223, lng: -9.1393 }, // Lisbon
+            },
+            {
+              start: { lat: 51.5074, lng: -0.1278 }, // London
+              end: { lat: 28.6139, lng: 77.209 }, // New Delhi
+            },
+            {
+              start: { lat: 28.6139, lng: 77.209 }, // New Delhi
+              end: { lat: 43.1332, lng: 131.9113 }, // Vladivostok
+            },
+            {
+              start: { lat: 28.6139, lng: 77.209 }, // New Delhi
+              end: { lat: -1.2921, lng: 36.8219 }, // Nairobi
+            },
+          ]}
+        />
+      </section>
+
+      {/* Existing Footer Content */}
       <div className="container mx-auto px-4 py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="col-span-1 md:col-span-1">
@@ -81,7 +147,7 @@ const Footer: React.FC = () => {
         
         <div className="border-t border-gray-800 mt-12 pt-8">
           <p className="text-center text-gray-500">
-            &copy; {new Date().getFullYear()} Renewable Meet 2026. All rights reserved.
+            © 2025 Renewable Meet 2026. All rights reserved.
           </p>
         </div>
       </div>

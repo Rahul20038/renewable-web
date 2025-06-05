@@ -5,6 +5,7 @@ import About from '../components/About';
 import Features from '../components/Features';
 import Speakers from '../components/Speakers';
 import Agenda from '../components/Agenda';
+import FAQ from '../components/FAQ';
 import Register from '../components/Register';
 
 const Home: React.FC = () => {
@@ -16,6 +17,7 @@ const Home: React.FC = () => {
       <Features />
       <Speakers />
       <Agenda />
+      <FAQ />
       <Register />
     </>
   );

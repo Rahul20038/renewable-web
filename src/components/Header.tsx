@@ -60,12 +60,7 @@ const Header: React.FC = () => {
           >
             Partner
           </a>
-          <a 
-            href="#app" 
-            className="bg-amber-500 hover:bg-amber-600 text-gray-900 font-semibold px-4 py-2 rounded transition-colors"
-          >
-            Summit App
-          </a>
+          
         </div>
 
         {/* Mobile Menu Button */}

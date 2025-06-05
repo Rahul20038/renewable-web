@@ -32,6 +32,54 @@ const Speakers: React.FC = () => {
       title: "Chief Executive Officer",
       company: "HydroPower Innovations",
       image: "https://images.pexels.com/photos/1516680/pexels-photo-1516680.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750"
+    },
+    {
+      name: "Dr. Sarah Johnson",
+      title: "Chief Technology Officer",
+      company: "SolarTech Innovations",
+      image: "https://images.pexels.com/photos/5325840/pexels-photo-5325840.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750"
+    },
+    {
+      name: "Michael Chen",
+      title: "Vice President, Renewable Strategy",
+      company: "GreenEnergy Global",
+      image: "https://images.pexels.com/photos/2379005/pexels-photo-2379005.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750"
+    },
+    {
+      name: "Emma Rodriguez",
+      title: "Senior Director, Sustainability",
+      company: "EcoFuture Alliance",
+      image: "https://images.pexels.com/photos/762020/pexels-photo-762020.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750"
+    },
+    {
+      name: "Dr. James Wilson",
+      title: "Chief Executive Officer",
+      company: "HydroPower Innovations",
+      image: "https://images.pexels.com/photos/1516680/pexels-photo-1516680.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750"
+    },
+    {
+      name: "Dr. Sarah Johnson",
+      title: "Chief Technology Officer",
+      company: "SolarTech Innovations",
+      image: "https://images.pexels.com/photos/5325840/pexels-photo-5325840.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750"
+    },
+    {
+      name: "Michael Chen",
+      title: "Vice President, Renewable Strategy",
+      company: "GreenEnergy Global",
+      image: "https://images.pexels.com/photos/2379005/pexels-photo-2379005.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750"
+    },
+    {
+      name: "Emma Rodriguez",
+      title: "Senior Director, Sustainability",
+      company: "EcoFuture Alliance",
+      image: "https://images.pexels.com/photos/762020/pexels-photo-762020.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750"
+    },
+    {
+      name: "Dr. James Wilson",
+      title: "Chief Executive Officer",
+      company: "HydroPower Innovations",
+      image: "https://images.pexels.com/photos/1516680/pexels-photo-1516680.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750"
     }
   ];
 
