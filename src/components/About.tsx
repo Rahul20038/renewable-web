@@ -62,6 +62,7 @@ const About: React.FC = () => {
             </div>
           </div>
         </div>
+<<<<<<< HEAD
 
         {/* Image Grid Section */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -89,6 +90,8 @@ const About: React.FC = () => {
             />
           </div>
         </div>
+=======
+>>>>>>> 817215daa211c05814d8d48ef5e3587081570540
       </div>
     </section>
   );

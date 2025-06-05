@@ -6,7 +6,11 @@ export default defineConfig({
   plugins: [react()],
   resolve: {
     alias: {
+<<<<<<< HEAD
       '@': path.resolve(__dirname, 'src'), // '@' points to './src'
+=======
+      '@': path.resolve(__dirname, 'src'), // This allows @ to map to /src
+>>>>>>> 817215daa211c05814d8d48ef5e3587081570540
     },
   },
   optimizeDeps: {
