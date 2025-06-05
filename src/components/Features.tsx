@@ -1,12 +1,19 @@
 import React from 'react';
 
+// Use correct local imports (adjust path if needed)
+import feature1 from '@/assets/images/feature1.jpg';
+import feature2 from '@/assets/images/feature2.jpg';
+import feature3 from '@/assets/images/feature3.jpg';
+
 const Features: React.FC = () => {
   return (
     <section className="py-16 md:py-24 bg-gray-100">
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
-          <div className="flex flex-col">
-            <h3 className="text-2xl font-bold text-gray-900 mb-6">
+          {/* Feature 1 */}
+          <div className="flex flex-col items-start text-left">
+            <img src={feature1} alt="Highly Commended" className="w-full h-80 object-cover mb-4 rounded" />
+            <h3 className="text-2xl font-bold text-gray-900 mb-4">
               Highly Commended
             </h3>
             <p className="text-gray-700 mb-6 flex-grow">
@@ -20,8 +27,10 @@ const Features: React.FC = () => {
             </a>
           </div>
 
-          <div className="flex flex-col">
-            <h3 className="text-2xl font-bold text-gray-900 mb-6">
+          {/* Feature 2 */}
+          <div className="flex flex-col items-start text-left">
+            <img src={feature2} alt="Pioneering Content" className="w-full h-80 object-cover mb-4 rounded" />
+            <h3 className="text-2xl font-bold text-gray-900 mb-4">
               Pioneering Content
             </h3>
             <p className="text-gray-700 mb-6 flex-grow">
@@ -35,8 +44,10 @@ const Features: React.FC = () => {
             </a>
           </div>
 
-          <div className="flex flex-col">
-            <h3 className="text-2xl font-bold text-gray-900 mb-6">
+          {/* Feature 3 */}
+          <div className="flex flex-col items-start text-left">
+            <img src={feature3} alt="Passionate about Energy" className="w-full h-80 object-cover mb-4 rounded" />
+            <h3 className="text-2xl font-bold text-gray-900 mb-4">
               Passionate about Energy
             </h3>
             <p className="text-gray-700 mb-6 flex-grow">
