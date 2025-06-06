@@ -62,36 +62,6 @@ const About: React.FC = () => {
             </div>
           </div>
         </div>
-<<<<<<< HEAD
-
-        {/* Image Grid Section */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="overflow-hidden rounded-lg shadow-md transition-transform duration-300 hover:scale-105">
-            <img 
-              src="https://images.pexels.com/photos/3184465/pexels-photo-3184465.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750" 
-              alt="Conference networking" 
-              className="w-full h-56 object-cover"
-            />
-          </div>
-          
-          <div className="overflow-hidden rounded-lg shadow-md transition-transform duration-300 hover:scale-105">
-            <img 
-              src="https://images.pexels.com/photos/3184360/pexels-photo-3184360.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750" 
-              alt="Panel discussion" 
-              className="w-full h-56 object-cover"
-            />
-          </div>
-          
-          <div className="overflow-hidden rounded-lg shadow-md transition-transform duration-300 hover:scale-105">
-            <img 
-              src="https://images.pexels.com/photos/3182812/pexels-photo-3182812.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750" 
-              alt="Networking event" 
-              className="w-full h-56 object-cover"
-            />
-          </div>
-        </div>
-=======
->>>>>>> 817215daa211c05814d8d48ef5e3587081570540
       </div>
     </section>
   );

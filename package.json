@@ -11,21 +11,14 @@
   },
   "dependencies": {
     "cobe": "^0.6.4",
-<<<<<<< HEAD
-=======
     "dotted-map": "^2.2.3",
->>>>>>> 817215daa211c05814d8d48ef5e3587081570540
     "framer-motion": "^12.16.0",
     "lucide-react": "^0.344.0",
     "react": "^18.3.1",
     "react-aria-components": "^1.9.0",
     "react-dom": "^18.3.1",
     "react-router-dom": "^6.22.2",
-<<<<<<< HEAD
     "react-use-measure": "^2.1.7"
-=======
-    "react-simple-maps": "^3.0.0"
->>>>>>> 817215daa211c05814d8d48ef5e3587081570540
   },
   "devDependencies": {
     "@eslint/js": "^9.9.1",

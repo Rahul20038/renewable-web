@@ -18,11 +18,8 @@ const Home: React.FC = () => {
       <Features />
       <Speakers />
       <Agenda />
-<<<<<<< HEAD
       <Videos />
-=======
       <FAQ />
->>>>>>> 817215daa211c05814d8d48ef5e3587081570540
       <Register />
     </>
   );
