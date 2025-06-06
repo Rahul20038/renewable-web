@@ -84,7 +84,7 @@ const Speakers: React.FC = () => {
   ];
 
   return (
-    <section className="py-16 md:py-24 bg-white">
+    <section className="pt-16 pb-8 md:pt-24 md:pb-12 bg-white">
       <div className="container mx-auto px-4">
         <h2 className="text-3xl md:text-4xl font-bold text-center text-gray-900 mb-16">
           Confirmed Speakers 2026

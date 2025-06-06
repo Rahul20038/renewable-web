@@ -21,15 +21,10 @@ export function WorldMap({
 
   useEffect(() => {
     const root = document.documentElement;
-    if (root.classList.contains("dark")) {
-      setTheme("dark");
-    } else {
-      setTheme("light");
-    }
+    setTheme(root.classList.contains("dark") ? "dark" : "light");
   }, []);
 
-  const map = new DottedMap({ height: 100, grid: "diagonal" });
-
+  const map = new DottedMap({ height: 50, grid: "diagonal" });
   const svgMap = map.getSVG({
     radius: 0.22,
     color: theme === "dark" ? "#FFFFFF40" : "#00000040",
@@ -53,22 +48,24 @@ export function WorldMap({
   };
 
   return (
-    <div className="w-full aspect-[2/1] dark:bg-black bg-white rounded-lg relative font-sans">
+    <div className="w-screen h-[70vh] relative font-sans overflow-hidden dark:bg-black bg-white">
+      {/* World Map Image */}
       <img
         src={`data:image/svg+xml;utf8,${encodeURIComponent(svgMap)}`}
-        className="h-full w-full [mask-image:linear-gradient(to_bottom,transparent,white_10%,white_90%,transparent)] pointer-events-none select-none"
+        className="absolute inset-0 w-full h-full object-cover pointer-events-none select-none"
         alt="world map"
-        height="495"
-        width="1056"
         draggable={false}
         loading="lazy"
         decoding="async"
       />
+
+      {/* Overlaying Animated Paths */}
       <svg
         ref={svgRef}
         viewBox="0 0 800 400"
-        className="w-full h-full absolute inset-0 pointer-events-none select-none"
+        className="absolute inset-0 w-full h-full pointer-events-none select-none"
       >
+        {/* Curved Motion Paths */}
         {dots.map((dot, i) => {
           const startPoint = projectPoint(dot.start.lat, dot.start.lng);
           const endPoint = projectPoint(dot.end.lat, dot.end.lng);
@@ -100,14 +97,24 @@ export function WorldMap({
           </linearGradient>
         </defs>
 
+        {/* Pulse Circles */}
         {dots.map((dot, i) => (
           <g key={`points-group-${i}`}>
             {["start", "end"].map((pos) => {
-              const coord = projectPoint(dot[pos as "start" | "end"].lat, dot[pos as "start" | "end"].lng);
+              const coord = projectPoint(
+                dot[pos as "start" | "end"].lat,
+                dot[pos as "start" | "end"].lng
+              );
               return (
                 <g key={`${pos}-${i}`}>
                   <circle cx={coord.x} cy={coord.y} r="2" fill={lineColor} />
-                  <circle cx={coord.x} cy={coord.y} r="2" fill={lineColor} opacity="0.5">
+                  <circle
+                    cx={coord.x}
+                    cy={coord.y}
+                    r="2"
+                    fill={lineColor}
+                    opacity="0.5"
+                  >
                     <animate
                       attributeName="r"
                       from="2"
