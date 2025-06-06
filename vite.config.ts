@@ -9,14 +9,13 @@ export default defineConfig({
       '@': path.resolve(__dirname, 'src'), // Maps '@' to the 'src' directory
     },
   },
-  // Removed exclude for lucide-react to allow pre-bundling
-  // optimizeDeps: {
-  //   exclude: ['lucide-react'], 
-  // },
   server: {
     port: 3000,
     open: true,
-    hmr: true,
+    hmr: {
+      overlay: true,
+      clientPort: 3000
+    },
   },
   build: {
     outDir: 'dist',
@@ -26,8 +25,29 @@ export default defineConfig({
     chunkSizeWarningLimit: 600,
     target: 'es2015',         // Target modern browsers efficiently
     cssCodeSplit: true,       // Enable CSS code splitting
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom', 'react-router-dom'],
+          animations: ['animejs', 'framer-motion'],
+          visualizations: ['cobe', 'dotted-map']
+        }
+      }
+    },
+    reportCompressedSize: false,  // Disable compressed size reporting for faster builds
+    emptyOutDir: true,           // Clean the output directory before build
   },
   css: {
     postcss: './postcss.config.js',
+    modules: {
+      localsConvention: 'camelCase'
+    },
+    devSourcemap: false      // Disable CSS sourcemaps in development
   },
+  optimizeDeps: {
+    include: ['react', 'react-dom', 'react-router-dom'],  // Pre-bundle common dependencies
+    esbuildOptions: {
+      target: 'es2015'
+    }
+  }
 });

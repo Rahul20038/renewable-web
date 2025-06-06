@@ -1,6 +1,6 @@
-import React from 'react';
-import Hero from '../components/Hero';
-import Sponsors from '../components/Sponsors';
+import React, { lazy, Suspense } from 'react';
+const Hero = lazy(() => import('../components/Hero'));
+const Sponsors = lazy(() => import('../components/Sponsors'));
 import About from '../components/About';
 import Features from '../components/Features';
 import Speakers from '../components/Speakers';
