@@ -1,7 +1,17 @@
 import React, { useState } from 'react';
 
+interface FormData {
+  firstName: string;
+  lastName: string;
+  email: string;
+  company: string;
+  jobTitle: string;
+  country: string;
+  ticketType: string;
+}
+
 const Register: React.FC = () => {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<FormData>({
     firstName: '',
     lastName: '',
     email: '',
@@ -18,27 +28,26 @@ const Register: React.FC = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle form submission logic here
     console.log('Form submitted:', formData);
     alert('Registration submitted successfully!');
   };
 
   return (
-    <section id="register" className="py-16 md:py-24 bg-white">
-      <div className="container mx-auto px-4">
+    <section className="py-16 md:py-24 bg-white">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto">
-          <h2 className="text-3xl md:text-4xl font-bold text-center text-gray-900 mb-8">
-            Register for Renewable Meet 2026
+          <h2 className="text-3xl md:text-4xl font-bold text-center text-gray-900 mb-8 tracking-tight">
+            Join Renewable Meet 2026
           </h2>
-          <p className="text-lg text-center text-gray-700 mb-12">
-            Secure your place at the world's premier renewable energy conference
+          <p className="text-lg text-center text-gray-600 mb-12 font-medium">
+            Secure your spot at the leading renewable energy conference
           </p>
 
-          <div className="bg-gray-100 p-8 rounded-lg shadow-lg">
-            <form onSubmit={handleSubmit}>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+          <div className="bg-gray-50 p-8 rounded-2xl shadow-lg border border-gray-100">
+            <div onSubmit={handleSubmit} className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label htmlFor="firstName" className="block text-gray-700 font-medium mb-2">
+                  <label htmlFor="firstName" className="block text-gray-700 font-semibold mb-2 text-sm">
                     First Name *
                   </label>
                   <input
@@ -48,11 +57,12 @@ const Register: React.FC = () => {
                     value={formData.firstName}
                     onChange={handleChange}
                     required
-                    className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-amber-500"
+                    className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all duration-200 bg-white shadow-sm placeholder-gray-400"
+                    placeholder="Your first name"
                   />
                 </div>
                 <div>
-                  <label htmlFor="lastName" className="block text-gray-700 font-medium mb-2">
+                  <label htmlFor="lastName" className="block text-gray-700 font-semibold mb-2 text-sm">
                     Last Name *
                   </label>
                   <input
@@ -62,13 +72,14 @@ const Register: React.FC = () => {
                     value={formData.lastName}
                     onChange={handleChange}
                     required
-                    className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-amber-500"
+                    className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all duration-200 bg-white shadow-sm placeholder-gray-400"
+                    placeholder="Your last name"
                   />
                 </div>
               </div>
 
-              <div className="mb-6">
-                <label htmlFor="email" className="block text-gray-700 font-medium mb-2">
+              <div>
+                <label htmlFor="email" className="block text-gray-700 font-semibold mb-2 text-sm">
                   Email Address *
                 </label>
                 <input
@@ -78,13 +89,14 @@ const Register: React.FC = () => {
                   value={formData.email}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-amber-500"
+                  className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all duration-200 bg-white shadow-sm placeholder-gray-400"
+                  placeholder="Your email address"
                 />
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label htmlFor="company" className="block text-gray-700 font-medium mb-2">
+                  <label htmlFor="company" className="block text-gray-700 font-semibold mb-2 text-sm">
                     Company *
                   </label>
                   <input
@@ -94,11 +106,12 @@ const Register: React.FC = () => {
                     value={formData.company}
                     onChange={handleChange}
                     required
-                    className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-amber-500"
+                    className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all duration-200 bg-white shadow-sm placeholder-gray-400"
+                    placeholder="Your company name"
                   />
                 </div>
                 <div>
-                  <label htmlFor="jobTitle" className="block text-gray-700 font-medium mb-2">
+                  <label htmlFor="jobTitle" className="block text-gray-700 font-semibold mb-2 text-sm">
                     Job Title *
                   </label>
                   <input
@@ -108,13 +121,14 @@ const Register: React.FC = () => {
                     value={formData.jobTitle}
                     onChange={handleChange}
                     required
-                    className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-amber-500"
+                    className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all duration-200 bg-white shadow-sm placeholder-gray-400"
+                    placeholder="Your job title"
                   />
                 </div>
               </div>
 
-              <div className="mb-6">
-                <label htmlFor="country" className="block text-gray-700 font-medium mb-2">
+              <div>
+                <label htmlFor="country" className="block text-gray-700 font-semibold mb-2 text-sm">
                   Country *
                 </label>
                 <select
@@ -123,7 +137,7 @@ const Register: React.FC = () => {
                   value={formData.country}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-amber-500"
+                  className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all duration-200 bg-white shadow-sm text-gray-600"
                 >
                   <option value="">Select your country</option>
                   <option value="us">United States</option>
@@ -137,11 +151,11 @@ const Register: React.FC = () => {
               </div>
 
               <div className="mb-8">
-                <label className="block text-gray-700 font-medium mb-2">
+                <label className="block text-gray-700 font-semibold mb-4 text-sm">
                   Ticket Type *
                 </label>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="border border-gray-300 rounded p-4 hover:border-amber-500 cursor-pointer">
+                  <div className="border border-gray-200 rounded-xl p-6 bg-white shadow-sm hover:shadow-md hover:border-amber-500 transition-all duration-300 transform hover:-translate-y-1">
                     <input
                       type="radio"
                       id="standard"
@@ -149,16 +163,15 @@ const Register: React.FC = () => {
                       value="standard"
                       checked={formData.ticketType === 'standard'}
                       onChange={handleChange}
-                      className="mr-2"
+                      className="mr-2 accent-amber-500"
                     />
                     <label htmlFor="standard" className="cursor-pointer">
                       <span className="font-bold text-gray-900 block mb-1">Standard</span>
                       <span className="text-amber-600 font-bold block mb-1">$799</span>
-                      <span className="text-sm text-gray-600">Full conference access</span>
+                      <span className="text-sm text-gray-500">Full conference access</span>
                     </label>
                   </div>
-                  
-                  <div className="border border-gray-300 rounded p-4 hover:border-amber-500 cursor-pointer">
+                  <div className="border border-gray-200 rounded-xl p-6 bg-white shadow-sm hover:shadow-md hover:border-amber-500 transition-all duration-300 transform hover:-translate-y-1">
                     <input
                       type="radio"
                       id="premium"
@@ -166,16 +179,15 @@ const Register: React.FC = () => {
                       value="premium"
                       checked={formData.ticketType === 'premium'}
                       onChange={handleChange}
-                      className="mr-2"
+                      className="mr-2 accent-amber-500"
                     />
                     <label htmlFor="premium" className="cursor-pointer">
                       <span className="font-bold text-gray-900 block mb-1">Premium</span>
                       <span className="text-amber-600 font-bold block mb-1">$1,299</span>
-                      <span className="text-sm text-gray-600">VIP access + workshops</span>
+                      <span className="text-sm text-gray-500">VIP access + workshops</span>
                     </label>
                   </div>
-                  
-                  <div className="border border-gray-300 rounded p-4 hover:border-amber-500 cursor-pointer">
+                  <div className="border border-gray-200 rounded-xl p-6 bg-white shadow-sm hover:shadow-md hover:border-amber-500 transition-all duration-300 transform hover:-translate-y-1">
                     <input
                       type="radio"
                       id="executive"
@@ -183,12 +195,12 @@ const Register: React.FC = () => {
                       value="executive"
                       checked={formData.ticketType === 'executive'}
                       onChange={handleChange}
-                      className="mr-2"
+                      className="mr-2 accent-amber-500"
                     />
                     <label htmlFor="executive" className="cursor-pointer">
                       <span className="font-bold text-gray-900 block mb-1">Executive</span>
                       <span className="text-amber-600 font-bold block mb-1">$1,999</span>
-                      <span className="text-sm text-gray-600">All access + networking dinner</span>
+                      <span className="text-sm text-gray-500">All access + networking dinner</span>
                     </label>
                   </div>
                 </div>
@@ -196,19 +208,20 @@ const Register: React.FC = () => {
 
               <div className="text-center">
                 <button
-                  type="submit"
-                  className="bg-amber-500 hover:bg-amber-600 text-gray-900 font-semibold px-8 py-3 rounded-md text-lg transition-colors"
+                  type="button"
+                  onClick={handleSubmit}
+                  className="bg-amber-500 hover:bg-amber-600 text-white font-semibold px-8 py-3 rounded-lg text-lg transition-all duration-300 transform hover:scale-105 shadow-md"
                 >
                   Complete Registration
                 </button>
               </div>
-            </form>
+            </div>
           </div>
-          
-          <div className="mt-8 text-center text-gray-600">
+
+          <div className="mt-8 text-center text-gray-600 text-sm">
             <p>
-              For group registrations or special accommodations, please contact us at{' '}
-              <a href="mailto:registrations@renewablemeet2026.org" className="text-amber-600 hover:underline">
+              For group registrations or special accommodations, contact us at{' '}
+              <a href="mailto:registrations@renewablemeet2026.org" className="text-amber-600 hover:underline font-medium">
                 registrations@renewablemeet2026.org
               </a>
             </p>
