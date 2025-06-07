@@ -277,103 +277,143 @@
 
 "use client";
 
-import React, { memo, useEffect, useRef } from "react";
+import { useEffect, useRef, useCallback, memo, useState } from "react";
+import createGlobe, { COBEOptions } from "cobe";
+import { useMotionValue, useSpring } from "framer-motion";
 import { Helmet } from "react-helmet";
-import createGlobe from "cobe";
 
-// Globe component
-function Globe() {
+const MOVEMENT_DAMPING = 2000; // Increased damping for smoother movement
+
+const GLOBE_CONFIG: Partial<COBEOptions> = {
+  devicePixelRatio: typeof window !== "undefined" ? Math.min(window.devicePixelRatio, 1.5) : 1, // Adaptive pixel ratio
+  phi: 0,
+  theta: 0.3,
+  dark: 0,
+  diffuse: 0.3,
+  mapSamples: 1000, // Reduced for better performance
+  mapBrightness: 1,
+  baseColor: [1, 1, 1],
+  markerColor: [251 / 255, 100 / 255, 21 / 255],
+  glowColor: [1, 1, 1],
+  markers: [
+    { location: [14.5995, 120.9842], size: 0.03 },
+    { location: [19.076, 72.8777], size: 0.1 },
+    { location: [23.8103, 90.4125], size: 0.05 },
+    { location: [30.0444, 31.2357], size: 0.07 },
+    { location: [39.9042, 116.4074], size: 0.08 },
+    { location: [-23.5505, -46.6333], size: 0.1 },
+    { location: [19.4326, -99.1332], size: 0.1 },
+    { location: [40.7128, -74.006], size: 0.1 },
+    { location: [34.6937, 135.5022], size: 0.05 },
+    { location: [41.0082, 28.9784], size: 0.06 },
+  ],
+};
+
+const Globe = memo(() => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const pointerDownAt = useRef<number | null>(null);
-  const movement = useRef(0);
-  const rotation = useRef(0);
-  const widthRef = useRef(0);
-  let phi = 0;
+  const pointerInteracting = useRef<number | null>(null);
+  const pointerMovement = useRef(0);
+  const r = useMotionValue(0);
+  const rs = useSpring(r, { mass: 1, damping: 40, stiffness: 90 }); // Adjusted for smoother motion
+  const [globeReady, setGlobeReady] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const updatePointer = useCallback((val: number | null) => {
+    pointerInteracting.current = val;
+    if (canvasRef.current) {
+      canvasRef.current.style.cursor = val !== null ? "grabbing" : "grab";
+    }
+  }, []);
+
+  const handleMovement = useCallback(
+    (clientX: number) => {
+      if (pointerInteracting.current !== null) {
+        const delta = clientX - pointerInteracting.current;
+        pointerMovement.current = delta;
+        r.set(r.get() + delta / MOVEMENT_DAMPING);
+      }
+    },
+    [r]
+  );
 
   useEffect(() => {
-    const canvas = canvasRef.current!;
-    widthRef.current = canvas.offsetWidth;
+    if (!globeReady) return;
 
-    const globe = createGlobe(canvas, {
-      devicePixelRatio: Math.min(1.5, window.devicePixelRatio),
-      width: widthRef.current * 2,
-      height: widthRef.current * 2,
-      phi: 0,
-      theta: 0.3,
-      mapSamples: 8000,
-      mapBrightness: 10,
-      baseColor: [1, 1, 1],        // White globe
-      markerColor: [1, 0.4, 0.1],  // Orange markers
-      glowColor: [1, 1, 1],        // White glow
-      diffuse: 0,                  // No shadows
-      markers: [
-        { location: [19.076, 72.8777], size: 0.1 },    // Mumbai
-        { location: [40.7128, -74.006], size: 0.1 },   // New York
-        { location: [39.9042, 116.4074], size: 0.08 }, // Beijing
-      ],
+    let phi = 0;
+    let width = 0;
+
+    const updateSize = () => {
+      if (canvasRef.current) width = canvasRef.current.offsetWidth;
+    };
+    updateSize();
+
+    const globe = createGlobe(canvasRef.current!, {
+      ...GLOBE_CONFIG,
+      width,
+      height: width,
       onRender: (state) => {
-        if (!pointerDownAt.current) phi += 0.005;
-        state.phi = phi + rotation.current;
-        state.theta = 0.3;
-        state.width = widthRef.current * 2;
-        state.height = widthRef.current * 2;
+        if (!pointerInteracting.current) phi += 0.0015; // Slower rotation for better performance
+        state.phi = phi + rs.get();
+        state.width = width;
+        state.height = width;
       },
     });
 
-    const resize = () => {
-      widthRef.current = canvas.offsetWidth;
-    };
+    if (canvasRef.current) {
+      canvasRef.current.style.opacity = "1";
+    }
 
-    window.addEventListener("resize", resize);
-    canvas.style.opacity = "1";
+    const resizeObserver = new ResizeObserver(() => {
+      updateSize();
+    });
+
+    if (canvasRef.current) resizeObserver.observe(canvasRef.current);
 
     return () => {
       globe.destroy();
-      window.removeEventListener("resize", resize);
+      resizeObserver.disconnect();
     };
-  }, []);
+  }, [globeReady, rs]);
 
-  const updateRotation = (clientX: number) => {
-    if (pointerDownAt.current !== null) {
-      const delta = clientX - pointerDownAt.current;
-      movement.current = delta;
-      rotation.current = delta / 200;
-    }
-  };
+  // Lazy load using Intersection Observer
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          setGlobeReady(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.2 }
+    );
+
+    if (containerRef.current) observer.observe(containerRef.current);
+
+    return () => observer.disconnect();
+  }, []);
 
   return (
     <div
-      style={{
-        width: "100%",
-        height: "100%",
-        aspectRatio: "1 / 1",
-        margin: "0 auto",
-        position: "relative",
-      }}
+      ref={containerRef}
+      className="relative mx-auto aspect-square w-full max-w-[500px] md:max-w-[600px]"
     >
-      <canvas
-        ref={canvasRef}
-        style={{
-          width: "100%",
-          height: "100%",
-          opacity: 0,
-          transition: "opacity 0.5s ease",
-          willChange: "transform, opacity",
-          display: "block",
-        }}
-        onPointerDown={(e) => (pointerDownAt.current = e.clientX - movement.current)}
-        onPointerUp={() => (pointerDownAt.current = null)}
-        onPointerOut={() => (pointerDownAt.current = null)}
-        onMouseMove={(e) => updateRotation(e.clientX)}
-        onTouchMove={(e) => e.touches[0] && updateRotation(e.touches[0].clientX)}
-      />
+      {globeReady && (
+        <canvas
+          className="size-full opacity-0 transition-opacity duration-700 [contain:layout_paint_size]"
+          ref={canvasRef}
+          onPointerDown={(e) => updatePointer(e.clientX)}
+          onPointerUp={() => updatePointer(null)}
+          onPointerOut={() => updatePointer(null)}
+          onMouseMove={(e) => handleMovement(e.clientX)}
+          onTouchMove={(e) =>
+            e.touches[0] && handleMovement(e.touches[0].clientX)
+          }
+        />
+      )}
     </div>
   );
-}
+});
 
-const MemoizedGlobe = memo(Globe);
-
-// Hero component
 const Hero: React.FC = () => {
   return (
     <>
@@ -382,12 +422,9 @@ const Hero: React.FC = () => {
       </Helmet>
 
       <section className="relative h-screen min-h-[600px] flex items-center justify-start overflow-hidden bg-black">
-        {/* Background overlay */}
         <div className="absolute inset-0 bg-black bg-opacity-50 z-0" />
 
-        {/* Content container */}
         <div className="container mx-auto px-4 relative z-10 grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-          {/* Left text content */}
           <div
             className="max-w-3xl animate-fadeIn will-change-opacity will-change-transform"
             style={{ backfaceVisibility: "hidden" }}
@@ -416,12 +453,8 @@ const Hero: React.FC = () => {
             </div>
           </div>
 
-          {/* Right globe display */}
-          <div
-            className="relative flex justify-center items-center w-full max-w-[700px] h-[600px] mx-auto"
-            style={{ aspectRatio: "1 / 1" }}
-          >
-            <MemoizedGlobe />
+          <div className="relative hidden md:flex justify-center items-center h-[600px] w-full max-w-[700px]">
+            <Globe />
           </div>
         </div>
       </section>
@@ -430,3 +463,5 @@ const Hero: React.FC = () => {
 };
 
 export default Hero;
+
+
