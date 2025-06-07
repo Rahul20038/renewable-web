@@ -393,7 +393,7 @@ const Globe = memo(() => {
   return (
     <div
       ref={containerRef}
-      className="relative aspect-square w-[300px] md:w-[400px] lg:w-[500px] mx-auto"
+      className="relative aspect-square w-[500px] md:w-[400px] lg:w-[500px] mx-auto"
     >
       {globeReady && (
         <canvas
