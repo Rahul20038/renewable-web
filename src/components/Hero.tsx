@@ -290,7 +290,7 @@ const GLOBE_CONFIG: Partial<COBEOptions> = {
   dark: 0,
   diffuse: 0.3,
   mapSamples: 1000,
-  mapBrightness: 1.2,
+  mapBrightness: 1,
   baseColor: [1, 1, 1],
   markerColor: [251 / 255, 100 / 255, 21 / 255],
   glowColor: [1, 1, 1],
@@ -358,13 +358,15 @@ const Globe = memo(() => {
       },
     });
 
-    canvasRef.current!.style.opacity = "1";
+    if (canvasRef.current) {
+      canvasRef.current.style.opacity = "1";
+    }
 
     const resizeObserver = new ResizeObserver(() => {
       updateSize();
     });
 
-    resizeObserver.observe(canvasRef.current!);
+    if (canvasRef.current) resizeObserver.observe(canvasRef.current);
 
     return () => {
       globe.destroy();
@@ -391,7 +393,7 @@ const Globe = memo(() => {
   return (
     <div
       ref={containerRef}
-      className="relative aspect-square w-[280px] sm:w-[320px] md:w-[400px] lg:w-[500px] mx-auto"
+      className="relative aspect-square w-[300px] md:w-[400px] lg:w-[500px]"
     >
       {globeReady && (
         <canvas
@@ -417,13 +419,12 @@ const Hero: React.FC = () => {
         <title>World Renewable Energy Conference 2026 - Boston</title>
       </Helmet>
 
-      <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-black">
+      <section className="relative h-screen min-h-[600px] flex items-center justify-start overflow-hidden bg-black">
         <div className="absolute inset-0 bg-black bg-opacity-50 z-0" />
 
         <div className="container mx-auto px-4 relative z-10 h-full w-full">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 h-full items-center py-16 md:py-0">
-            {/* Left Content */}
-            <div className="max-w-3xl animate-fadeIn will-change-opacity will-change-transform z-10 text-center md:text-left">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 h-full items-center">
+            <div className="max-w-3xl animate-fadeIn will-change-opacity will-change-transform z-10">
               <h1 className="text-4xl md:text-6xl font-bold text-white leading-tight mb-6">
                 The World's Premier <br className="hidden md:block" />
                 Renewable Energy <br className="hidden md:block" />
@@ -432,7 +433,7 @@ const Hero: React.FC = () => {
               <h2 className="text-2xl md:text-3xl font-light text-amber-400 mb-8">
                 Boston, United States • June 12–15, 2026
               </h2>
-              <div className="flex flex-col sm:flex-row sm:justify-center md:justify-start gap-4">
+              <div className="flex flex-wrap gap-4">
                 <a
                   href="#register"
                   className="bg-amber-500 hover:bg-amber-600 text-gray-900 font-semibold px-8 py-3 rounded-md text-lg transition-colors duration-300 ease-in-out"
@@ -448,9 +449,9 @@ const Hero: React.FC = () => {
               </div>
             </div>
 
-            {/* Right Globe */}
-            <div className="relative w-full h-full flex items-center justify-center md:items-end md:justify-end">
-              <div className="w-full flex justify-center md:justify-end pr-0 md:pr-4 pb-8 md:pb-[150px]">
+            {/* Globe Positioned Bottom Right */}
+            <div className="relative h-full w-full">
+              <div className="absolute bottom-[150px] right-0 flex justify-end pr-4">
                 <Globe />
               </div>
             </div>
@@ -462,7 +463,6 @@ const Hero: React.FC = () => {
 };
 
 export default Hero;
-
 
 
 
