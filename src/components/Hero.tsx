@@ -393,7 +393,7 @@ const Globe = memo(() => {
   return (
     <div
       ref={containerRef}
-      className="relative aspect-square w-[300px] sm:w-[400px] md:w-[500px] lg:w-[600px] xl:w-[700px]"
+      className="relative aspect-square w-[300px] md:w-[400px] lg:w-[500px]"
     >
       {globeReady && (
         <canvas
@@ -419,13 +419,12 @@ const Hero: React.FC = () => {
         <title>World Renewable Energy Conference 2026 - Boston</title>
       </Helmet>
 
-      <section className="relative h-auto min-h-screen flex items-center justify-start overflow-hidden bg-black py-10">
+      <section className="relative h-screen min-h-[600px] flex items-center justify-start overflow-hidden bg-black">
         <div className="absolute inset-0 bg-black bg-opacity-50 z-0" />
 
-        <div className="container mx-auto px-4 relative z-10">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-            {/* Text */}
-            <div className="max-w-3xl animate-fadeIn will-change-opacity will-change-transform z-10 text-center md:text-left">
+        <div className="container mx-auto px-4 relative z-10 h-full w-full">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 h-full items-center">
+            <div className="max-w-3xl animate-fadeIn will-change-opacity will-change-transform z-10">
               <h1 className="text-4xl md:text-6xl font-bold text-white leading-tight mb-6">
                 The World's Premier <br className="hidden md:block" />
                 Renewable Energy <br className="hidden md:block" />
@@ -434,25 +433,27 @@ const Hero: React.FC = () => {
               <h2 className="text-2xl md:text-3xl font-light text-amber-400 mb-8">
                 Boston, United States • June 12–15, 2026
               </h2>
-              <div className="flex flex-col sm:flex-row sm:justify-center md:justify-start gap-4">
+              <div className="flex flex-wrap gap-4">
                 <a
                   href="#register"
-                  className="bg-amber-500 hover:bg-amber-600 text-gray-900 font-semibold px-8 py-3 rounded-md text-lg transition-colors duration-300"
+                  className="bg-amber-500 hover:bg-amber-600 text-gray-900 font-semibold px-8 py-3 rounded-md text-lg transition-colors duration-300 ease-in-out"
                 >
                   Register Now
                 </a>
                 <a
                   href="#learn-more"
-                  className="bg-transparent hover:bg-white/10 text-white border border-white font-semibold px-8 py-3 rounded-md text-lg transition-colors duration-300"
+                  className="bg-transparent hover:bg-white/10 text-white border border-white font-semibold px-8 py-3 rounded-md text-lg transition-colors duration-300 ease-in-out"
                 >
                   Learn More
                 </a>
               </div>
             </div>
 
-            {/* Globe */}
-            <div className="flex justify-center md:justify-end w-full">
-              <Globe />
+            {/* Globe Positioned Bottom Right */}
+            <div className="relative h-full w-full">
+              <div className="absolute bottom-[150px] right-0 flex justify-end pr-4">
+                <Globe />
+              </div>
             </div>
           </div>
         </div>
@@ -462,7 +463,6 @@ const Hero: React.FC = () => {
 };
 
 export default Hero;
-
 
 
 
