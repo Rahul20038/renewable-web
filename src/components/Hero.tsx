@@ -394,7 +394,7 @@ const Globe = memo(() => {
   return (
     <div
       ref={containerRef}
-      className="relative mx-auto w-full aspect-square max-w-[700px] lg:max-w-[800px]"
+      className="relative mx-auto w-full aspect-square max-w-[900px]"
     >
       {globeReady && (
         <canvas
@@ -461,6 +461,7 @@ const Hero: React.FC = () => {
 };
 
 export default Hero;
+
 
 
 
