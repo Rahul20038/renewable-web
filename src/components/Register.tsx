@@ -161,51 +161,6 @@ const Register: React.FC = () => {
     },
   ];
 
-  const pricingPlans: Plan[] = [
-    {
-      name: 'Free',
-      price: '$0/mo',
-      description: 'Best for 1-5 users',
-      features: [
-        { name: 'One workspace', available: true },
-        { name: 'Email support', available: true },
-        { name: '1 day data retention', available: false },
-        { name: 'Custom roles', available: false },
-        { name: 'Priority support', available: false },
-        { name: 'SSO', available: false },
-      ],
-      buttonText: 'Get started free',
-    },
-    {
-      name: 'Pro',
-      price: '$79/mo',
-      description: 'Best for 5-50 users',
-      features: [
-        { name: 'Five workspaces', available: true },
-        { name: 'Email support', available: true },
-        { name: '7 day data retention', available: true },
-        { name: 'Custom roles', available: true },
-        { name: 'Priority support', available: false },
-        { name: 'SSO', available: false },
-      ],
-      buttonText: '14-day free trial',
-    },
-    {
-      name: 'Enterprise',
-      price: 'Contact us',
-      description: 'Best for 50+ users',
-      features: [
-        { name: 'Unlimited workspaces', available: true },
-        { name: 'Email support', available: true },
-        { name: '30 day data retention', available: true },
-        { name: 'Custom roles', available: true },
-        { name: 'Priority support', available: true },
-        { name: 'SSO', available: true },
-      ],
-      buttonText: 'Contact us',
-    },
-  ];
-
   return (
     <div>
       <Style />
@@ -352,57 +307,6 @@ const Register: React.FC = () => {
                 </button>
               </div>
             </form>
-          </div>
-        </div>
-      </section>
-
-      {/* Separate Pricing Section */}
-      <section className="bg-gray-900 py-16">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-4xl md:text-5xl font-bold text-white mb-4 tracking-tight">
-              Choose Your Plan
-            </h2>
-            <p className="text-xl text-gray-400 max-w-2xl mx-auto leading-relaxed">
-              Select the perfect plan for your team’s needs
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {pricingPlans.map((plan, index) => (
-              <div key={index} className="pricing-card">
-                <h3 className="text-2xl font-semibold mb-2">{plan.name}</h3>
-                <p className="text-4xl font-bold mb-2">{plan.price}</p>
-                <p className="text-gray-400 mb-6">{plan.description}</p>
-                <div className="space-y-3 mb-8">
-                  {plan.features.map((feature, idx) => (
-                    <div key={idx} className="feature-item">
-                      {feature.available ? (
-                        <span className="feature-check">✔</span>
-                      ) : (
-                        <span className="feature-cross">✘</span>
-                      )}
-                      <span
-                        className={
-                          feature.available ? 'text-white' : 'text-gray-500'
-                        }
-                      >
-                        {feature.name}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-                <button
-                  className={`w-full py-3 rounded-lg text-lg font-semibold transition-all ${
-                    plan.name === 'Pro'
-                      ? 'bg-white text-black hover:bg-gray-200'
-                      : 'border border-white text-white hover:bg-white hover:text-black'
-                  }`}
-                >
-                  {plan.buttonText}
-                </button>
-              </div>
-            ))}
           </div>
         </div>
       </section>
