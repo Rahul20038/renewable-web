@@ -394,7 +394,7 @@ const Globe = memo(() => {
   return (
     <div
       ref={containerRef}
-      className="relative mx-auto aspect-square w-full max-w-[700px] md:max-w-[800px] lg:max-w-[900px]"
+      className="relative mx-auto w-full aspect-square max-w-[700px] lg:max-w-[800px]"
     >
       {globeReady && (
         <canvas
@@ -423,9 +423,9 @@ const Hero: React.FC = () => {
       <section className="relative h-screen min-h-[700px] flex items-center justify-between overflow-hidden bg-black px-6 md:px-12">
         <div className="absolute inset-0 bg-black bg-opacity-50 z-0" />
 
-        <div className="container mx-auto relative z-10 grid grid-cols-1 md:grid-cols-2 items-center gap-10">
-          {/* Left Text */}
-          <div className="max-w-3xl animate-fadeIn will-change-opacity will-change-transform">
+        <div className="container mx-auto relative z-10 grid grid-cols-1 md:grid-cols-2 items-center gap-12">
+          {/* Left Text Section */}
+          <div className="max-w-3xl animate-fadeIn">
             <h1 className="text-4xl md:text-6xl font-bold text-white leading-tight mb-6">
               The World's Premier <br className="hidden md:block" />
               Renewable Energy <br className="hidden md:block" />
@@ -450,8 +450,8 @@ const Hero: React.FC = () => {
             </div>
           </div>
 
-          {/* Right Globe */}
-          <div className="relative flex justify-center items-center h-[700px] w-full">
+          {/* Right Globe Section */}
+          <div className="flex justify-center items-center w-full h-full">
             <Globe />
           </div>
         </div>
@@ -461,6 +461,7 @@ const Hero: React.FC = () => {
 };
 
 export default Hero;
+
 
 
 
