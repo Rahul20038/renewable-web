@@ -282,15 +282,15 @@ import createGlobe, { COBEOptions } from "cobe";
 import { useMotionValue, useSpring } from "framer-motion";
 import { Helmet } from "react-helmet";
 
-const MOVEMENT_DAMPING = 2000; // Increased damping for smoother movement
+const MOVEMENT_DAMPING = 2000;
 
 const GLOBE_CONFIG: Partial<COBEOptions> = {
-  devicePixelRatio: typeof window !== "undefined" ? Math.min(window.devicePixelRatio, 1.5) : 1, // Adaptive pixel ratio
+  devicePixelRatio: typeof window !== "undefined" ? Math.min(window.devicePixelRatio, 1.5) : 1,
   phi: 0,
   theta: 0.3,
   dark: 0,
   diffuse: 0.3,
-  mapSamples: 1000, // Reduced for better performance
+  mapSamples: 1000,
   mapBrightness: 1,
   baseColor: [1, 1, 1],
   markerColor: [251 / 255, 100 / 255, 21 / 255],
@@ -314,7 +314,7 @@ const Globe = memo(() => {
   const pointerInteracting = useRef<number | null>(null);
   const pointerMovement = useRef(0);
   const r = useMotionValue(0);
-  const rs = useSpring(r, { mass: 1, damping: 40, stiffness: 90 }); // Adjusted for smoother motion
+  const rs = useSpring(r, { mass: 1, damping: 40, stiffness: 90 });
   const [globeReady, setGlobeReady] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -352,7 +352,7 @@ const Globe = memo(() => {
       width,
       height: width,
       onRender: (state) => {
-        if (!pointerInteracting.current) phi += 0.0015; // Slower rotation for better performance
+        if (!pointerInteracting.current) phi += 0.0015;
         state.phi = phi + rs.get();
         state.width = width;
         state.height = width;
@@ -375,7 +375,6 @@ const Globe = memo(() => {
     };
   }, [globeReady, rs]);
 
-  // Lazy load using Intersection Observer
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -395,7 +394,7 @@ const Globe = memo(() => {
   return (
     <div
       ref={containerRef}
-      className="relative mx-auto aspect-square w-full max-w-[500px] md:max-w-[600px]"
+      className="relative aspect-square w-[300px] md:w-[400px] lg:w-[500px]"
     >
       {globeReady && (
         <canvas
@@ -424,37 +423,39 @@ const Hero: React.FC = () => {
       <section className="relative h-screen min-h-[600px] flex items-center justify-start overflow-hidden bg-black">
         <div className="absolute inset-0 bg-black bg-opacity-50 z-0" />
 
-        <div className="container mx-auto px-4 relative z-10 grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-          <div
-            className="max-w-3xl animate-fadeIn will-change-opacity will-change-transform"
-            style={{ backfaceVisibility: "hidden" }}
-          >
-            <h1 className="text-4xl md:text-6xl font-bold text-white leading-tight mb-6">
-              The World's Premier <br className="hidden md:block" />
-              Renewable Energy <br className="hidden md:block" />
-              Conference
-            </h1>
-            <h2 className="text-2xl md:text-3xl font-light text-amber-400 mb-8">
-              Boston, United States • June 12–15, 2026
-            </h2>
-            <div className="flex flex-wrap gap-4">
-              <a
-                href="#register"
-                className="bg-amber-500 hover:bg-amber-600 text-gray-900 font-semibold px-8 py-3 rounded-md text-lg transition-colors duration-300 ease-in-out"
-              >
-                Register Now
-              </a>
-              <a
-                href="#learn-more"
-                className="bg-transparent hover:bg-white/10 text-white border border-white font-semibold px-8 py-3 rounded-md text-lg transition-colors duration-300 ease-in-out"
-              >
-                Learn More
-              </a>
+        <div className="container mx-auto px-4 relative z-10 h-full w-full">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 h-full items-center">
+            <div className="max-w-3xl animate-fadeIn will-change-opacity will-change-transform z-10">
+              <h1 className="text-4xl md:text-6xl font-bold text-white leading-tight mb-6">
+                The World's Premier <br className="hidden md:block" />
+                Renewable Energy <br className="hidden md:block" />
+                Conference
+              </h1>
+              <h2 className="text-2xl md:text-3xl font-light text-amber-400 mb-8">
+                Boston, United States • June 12–15, 2026
+              </h2>
+              <div className="flex flex-wrap gap-4">
+                <a
+                  href="#register"
+                  className="bg-amber-500 hover:bg-amber-600 text-gray-900 font-semibold px-8 py-3 rounded-md text-lg transition-colors duration-300 ease-in-out"
+                >
+                  Register Now
+                </a>
+                <a
+                  href="#learn-more"
+                  className="bg-transparent hover:bg-white/10 text-white border border-white font-semibold px-8 py-3 rounded-md text-lg transition-colors duration-300 ease-in-out"
+                >
+                  Learn More
+                </a>
+              </div>
             </div>
-          </div>
 
-          <div className="relative hidden md:flex justify-center items-center h-[600px] w-full max-w-[700px]">
-            <Globe />
+            {/* Globe Positioned Bottom Right */}
+            <div className="relative h-full w-full">
+              <div className="absolute bottom-[80px] right-0 flex justify-end pr-4">
+                <Globe />
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -462,7 +463,7 @@ const Hero: React.FC = () => {
   );
 };
 
-export default Hero;
+export default Hero;  
 
 
 
