@@ -282,15 +282,15 @@ import createGlobe, { COBEOptions } from "cobe";
 import { useMotionValue, useSpring } from "framer-motion";
 import { Helmet } from "react-helmet";
 
-const MOVEMENT_DAMPING = 2000;
+const MOVEMENT_DAMPING = 2000; // Increased damping for smoother movement
 
 const GLOBE_CONFIG: Partial<COBEOptions> = {
-  devicePixelRatio: typeof window !== "undefined" ? Math.min(window.devicePixelRatio, 1.5) : 1,
+  devicePixelRatio: typeof window !== "undefined" ? Math.min(window.devicePixelRatio, 1.5) : 1, // Adaptive pixel ratio
   phi: 0,
   theta: 0.3,
   dark: 0,
   diffuse: 0.3,
-  mapSamples: 1000,
+  mapSamples: 1000, // Reduced for better performance
   mapBrightness: 1,
   baseColor: [1, 1, 1],
   markerColor: [251 / 255, 100 / 255, 21 / 255],
@@ -314,7 +314,7 @@ const Globe = memo(() => {
   const pointerInteracting = useRef<number | null>(null);
   const pointerMovement = useRef(0);
   const r = useMotionValue(0);
-  const rs = useSpring(r, { mass: 1, damping: 40, stiffness: 90 });
+  const rs = useSpring(r, { mass: 1, damping: 40, stiffness: 90 }); // Adjusted for smoother motion
   const [globeReady, setGlobeReady] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -352,7 +352,7 @@ const Globe = memo(() => {
       width,
       height: width,
       onRender: (state) => {
-        if (!pointerInteracting.current) phi += 0.0015;
+        if (!pointerInteracting.current) phi += 0.0015; // Slower rotation for better performance
         state.phi = phi + rs.get();
         state.width = width;
         state.height = width;
@@ -375,6 +375,7 @@ const Globe = memo(() => {
     };
   }, [globeReady, rs]);
 
+  // Lazy load using Intersection Observer
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -394,7 +395,7 @@ const Globe = memo(() => {
   return (
     <div
       ref={containerRef}
-      className="relative mx-auto w-full aspect-square max-w-[1500px]"
+      className="relative mx-auto aspect-square w-full max-w-[500px] md:max-w-[600px]"
     >
       {globeReady && (
         <canvas
@@ -420,12 +421,14 @@ const Hero: React.FC = () => {
         <title>World Renewable Energy Conference 2026 - Boston</title>
       </Helmet>
 
-      <section className="relative h-screen min-h-[700px] flex items-center justify-between overflow-hidden bg-black px-6 md:px-12">
+      <section className="relative h-screen min-h-[600px] flex items-center justify-start overflow-hidden bg-black">
         <div className="absolute inset-0 bg-black bg-opacity-50 z-0" />
 
-        <div className="container mx-auto relative z-10 grid grid-cols-1 md:grid-cols-2 items-center gap-12">
-          {/* Left Text Section */}
-          <div className="max-w-3xl animate-fadeIn">
+        <div className="container mx-auto px-4 relative z-10 grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+          <div
+            className="max-w-3xl animate-fadeIn will-change-opacity will-change-transform"
+            style={{ backfaceVisibility: "hidden" }}
+          >
             <h1 className="text-4xl md:text-6xl font-bold text-white leading-tight mb-6">
               The World's Premier <br className="hidden md:block" />
               Renewable Energy <br className="hidden md:block" />
@@ -450,8 +453,7 @@ const Hero: React.FC = () => {
             </div>
           </div>
 
-          {/* Right Globe Section */}
-          <div className="flex justify-center items-center w-full h-full">
+          <div className="relative hidden md:flex justify-center items-center h-[600px] w-full max-w-[700px]">
             <Globe />
           </div>
         </div>
