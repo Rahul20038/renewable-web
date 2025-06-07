@@ -394,7 +394,7 @@ const Globe = memo(() => {
   return (
     <div
       ref={containerRef}
-      className="relative mx-auto w-full aspect-square max-w-[1200px]"
+      className="relative mx-auto w-full aspect-square max-w-[1500px]"
     >
       {globeReady && (
         <canvas
