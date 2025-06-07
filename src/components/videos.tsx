@@ -40,7 +40,10 @@
 
 
 
-import React from 'react';
+"use client";
+
+import React from "react";
+import { useInView } from "react-intersection-observer";
 
 const videos = [
   { title: "Opening Ceremony", url: "https://www.youtube.com/embed/oHg5SJYRHA0" },
@@ -50,6 +53,39 @@ const videos = [
   { title: "Future of Sustainable Fuels", url: "https://www.youtube.com/embed/fLexgOxsZu0" },
   { title: "Closing Remarks", url: "https://www.youtube.com/embed/kJQP7kiw5Fk" },
 ];
+
+const VideoCard: React.FC<{ title: string; url: string; index: number }> = ({ title, url, index }) => {
+  const { ref, inView } = useInView({
+    triggerOnce: true,
+    threshold: 0.2,
+  });
+
+  return (
+    <div
+      ref={ref}
+      className={`transform rounded-lg shadow-lg overflow-hidden bg-gray-50 transition duration-500 ease-in-out ${
+        inView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
+      }`}
+      style={{
+        transitionDelay: `${index * 100}ms`,
+      }}
+    >
+      <div className="aspect-video w-full">
+        {inView && (
+          <iframe
+            src={url}
+            title={title}
+            className="w-full h-full"
+            allowFullScreen
+            loading="lazy"
+            frameBorder="0"
+          ></iframe>
+        )}
+      </div>
+      <p className="text-center mt-3 text-gray-800 font-semibold text-lg px-4 pb-4">{title}</p>
+    </div>
+  );
+};
 
 const Video: React.FC = () => {
   return (
@@ -65,50 +101,12 @@ const Video: React.FC = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
         {videos.map((video, index) => (
-          <div
-            key={index}
-            className="transform rounded-lg shadow-lg overflow-hidden bg-gray-50 transition duration-300 ease-in-out hover:scale-[1.03] animate-fadeIn"
-            style={{ animationDelay: `${index * 100}ms`, animationFillMode: 'forwards', opacity: 0 }}
-          >
-            <div className="aspect-video w-full">
-              <iframe
-                src={video.url}
-                title={video.title}
-                className="w-full h-full"
-                allowFullScreen
-                loading="lazy"
-                frameBorder="0"
-              ></iframe>
-            </div>
-            <p className="text-center mt-3 text-gray-800 font-semibold text-lg px-4 pb-4">
-              {video.title}
-            </p>
-          </div>
+          <VideoCard key={index} title={video.title} url={video.url} index={index} />
         ))}
       </div>
-
-      <style>
-        {`
-          @keyframes fadeIn {
-            to {
-              opacity: 1;
-              transform: translateY(0);
-            }
-            from {
-              opacity: 0;
-              transform: translateY(15px);
-            }
-          }
-          .animate-fadeIn {
-            animation-name: fadeIn;
-            animation-duration: 0.6s;
-            animation-timing-function: ease-out;
-            animation-fill-mode: forwards;
-          }
-        `}
-      </style>
     </div>
   );
 };
 
 export default Video;
+
