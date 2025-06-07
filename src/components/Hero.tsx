@@ -452,7 +452,7 @@ const Hero: React.FC = () => {
 
             {/* Globe Positioned Bottom Right */}
             <div className="relative h-full w-full">
-              <div className="absolute bottom-[80px] right-0 flex justify-end pr-4">
+              <div className="absolute bottom-[150px] right-0 flex justify-end pr-4">
                 <Globe />
               </div>
             </div>
