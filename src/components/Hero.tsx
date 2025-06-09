@@ -478,7 +478,7 @@ const GLOBE_CONFIG: Partial<COBEOptions> = {
   theta: 0.3,
   dark: 0,
   diffuse: 0.3,
-  mapSamples: 1000,
+  mapSamples: 1500,
   mapBrightness: 1,
   baseColor: [1, 1, 1],
   markerColor: [251 / 255, 100 / 255, 21 / 255],
