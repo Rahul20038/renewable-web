@@ -481,7 +481,7 @@ const GLOBE_CONFIG: Partial<COBEOptions> = {
   mapSamples: 1500,
   mapBrightness: 1,
   baseColor: [1, 1, 1],
-  markerColor: [251 / 255, 100 / 255, 21 / 255],
+  markerColor: [251 / 255, 1500 / 255, 21 / 255],
   glowColor: [1, 1, 1],
   markers: [
     { location: [14.5995, 120.9842], size: 0.03 },
@@ -499,12 +499,12 @@ const GLOBE_CONFIG: Partial<COBEOptions> = {
 
 const Globe = memo(() => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const pointerInteracting = useRef<number | null>(null);
   const pointerMovement = useRef(0);
   const r = useMotionValue(0);
   const rs = useSpring(r, { mass: 1, damping: 40, stiffness: 90 });
   const [globeReady, setGlobeReady] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
 
   const updatePointer = useCallback((val: number | null) => {
     pointerInteracting.current = val;
@@ -525,37 +525,29 @@ const Globe = memo(() => {
   );
 
   useEffect(() => {
-    if (!globeReady) return;
+    if (!globeReady || !canvasRef.current) return;
 
     let phi = 0;
-    let width = 0;
+    let width = canvasRef.current.offsetWidth;
 
-    const updateSize = () => {
-      if (canvasRef.current) width = canvasRef.current.offsetWidth;
-    };
-    updateSize();
-
-    const globe = createGlobe(canvasRef.current!, {
+    const globe = createGlobe(canvasRef.current, {
       ...GLOBE_CONFIG,
       width,
       height: width,
       onRender: (state) => {
-        if (!pointerInteracting.current) phi += 0.0015;
+        phi = pointerInteracting.current ? phi : phi + 0.0015;
         state.phi = phi + rs.get();
-        state.width = width;
-        state.height = width;
       },
     });
 
-    if (canvasRef.current) {
-      canvasRef.current.style.opacity = "1";
-    }
+    canvasRef.current.style.opacity = "1";
 
     const resizeObserver = new ResizeObserver(() => {
-      updateSize();
+      width = canvasRef.current!.offsetWidth;
+      globe.resize?.(width, width);
     });
 
-    if (canvasRef.current) resizeObserver.observe(canvasRef.current);
+    resizeObserver.observe(canvasRef.current);
 
     return () => {
       globe.destroy();
@@ -584,36 +576,52 @@ const Globe = memo(() => {
       ref={containerRef}
       className="relative aspect-square w-[300px] md:w-[400px] lg:w-[500px]"
     >
-      {globeReady && (
+      {globeReady ? (
         <canvas
-          className="size-full opacity-0 transition-opacity duration-700 [contain:layout_paint_size]"
+          className="size-full opacity-0 transition-opacity duration-1000 ease-in-out [contain:layout_paint_size]"
           ref={canvasRef}
           onPointerDown={(e) => updatePointer(e.clientX)}
           onPointerUp={() => updatePointer(null)}
           onPointerOut={() => updatePointer(null)}
           onMouseMove={(e) => handleMovement(e.clientX)}
-          onTouchMove={(e) =>
-            e.touches[0] && handleMovement(e.touches[0].clientX)
-          }
+          onTouchMove={(e) => {
+            if (e.touches.length > 0) handleMovement(e.touches[0].clientX);
+          }}
         />
+      ) : (
+        <div className="w-full h-full flex items-center justify-center text-white/60 text-sm">
+          Loading globe...
+        </div>
       )}
     </div>
   );
 });
 
 const Hero: React.FC = () => {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
   return (
     <>
       <Helmet>
         <title>World Renewable Energy Conference 2026 - Boston</title>
       </Helmet>
 
-      <section className="relative h-screen min-h-[600px] flex items-center justify-start overflow-hidden bg-black">
+      <section className="relative h-screen min-h-[600px] flex items-center justify-start overflow-hidden bg-black w-full">
         <div className="absolute inset-0 bg-black bg-opacity-50 z-0" />
 
-        <div className="container mx-auto px-4 relative z-10 h-full w-full">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 h-full items-center">
-            <div className="max-w-3xl animate-fadeIn will-change-opacity will-change-transform z-10">
+        <div className="w-full relative z-10 h-full">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 h-full items-center w-full px-0">
+            <div className="w-full animate-fadeIn will-change-opacity will-change-transform z-10 px-0">
               <h1 className="text-4xl md:text-6xl font-bold text-white leading-tight mb-6">
                 The World's Premier <br className="hidden md:block" />
                 Renewable Energy <br className="hidden md:block" />
@@ -638,10 +646,9 @@ const Hero: React.FC = () => {
               </div>
             </div>
 
-            {/* Globe hidden on mobile screens */}
-            <div className="relative h-full w-full hidden sm:block">
-              <div className="absolute bottom-[150px] right-0 flex justify-end pr-4">
-                <Globe />
+            <div className="relative h-full w-full">
+              <div className="absolute bottom-[100px] md:bottom-[150px] right-0 flex justify-end pr-4">
+                {!isMobile && <Globe />}
               </div>
             </div>
           </div>
