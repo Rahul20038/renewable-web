@@ -7,58 +7,34 @@ interface Speaker {
   image: string;
 }
 
-const Speakers: React.FC = () => {
-  const speakers: Speaker[] = [
-    {
-      name: "Dr. Sarah Johnson",
-      title: "Chief Technology Officer",
-      company: "SolarTech Innovations",
-      image: "https://images.pexels.com/photos/5325840/pexels-photo-5325840.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750"
-    },
-    {
-      name: "Michael Chen",
-      title: "Vice President, Renewable Strategy",
-      company: "GreenEnergy Global",
-      image: "https://images.pexels.com/photos/2379005/pexels-photo-2379005.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750"
-    },
-    {
-      name: "Emma Rodriguez",
-      title: "Senior Director, Sustainability",
-      company: "EcoFuture Alliance",
-      image: "https://images.pexels.com/photos/762020/pexels-photo-762020.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750"
-    },
-    {
-      name: "Dr. James Wilson",
-      title: "Chief Executive Officer",
-      company: "HydroPower Innovations",
-      image: "https://images.pexels.com/photos/1516680/pexels-photo-1516680.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750"
-    },
-    {
-      name: "Dr. Sarah Johnson",
-      title: "Chief Technology Officer",
-      company: "SolarTech Innovations",
-      image: "https://images.pexels.com/photos/5325840/pexels-photo-5325840.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750"
-    },
-    {
-      name: "Michael Chen",
-      title: "Vice President, Renewable Strategy",
-      company: "GreenEnergy Global",
-      image: "https://images.pexels.com/photos/2379005/pexels-photo-2379005.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750"
-    },
-    {
-      name: "Emma Rodriguez",
-      title: "Senior Director, Sustainability",
-      company: "EcoFuture Alliance",
-      image: "https://images.pexels.com/photos/762020/pexels-photo-762020.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750"
-    },
-    {
-      name: "Dr. James Wilson",
-      title: "Chief Executive Officer",
-      company: "HydroPower Innovations",
-      image: "https://images.pexels.com/photos/1516680/pexels-photo-1516680.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750"
-    }
-  ];
+const speakers: Speaker[] = [
+  {
+    name: "Dr. Sarah Johnson",
+    title: "Chief Technology Officer",
+    company: "SolarTech Innovations",
+    image: "https://images.pexels.com/photos/5325840/pexels-photo-5325840.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750"
+  },
+  {
+    name: "Michael Chen",
+    title: "Vice President, Renewable Strategy",
+    company: "GreenEnergy Global",
+    image: "https://images.pexels.com/photos/2379005/pexels-photo-2379005.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750"
+  },
+  {
+    name: "Emma Rodriguez",
+    title: "Senior Director, Sustainability",
+    company: "EcoFuture Alliance",
+    image: "https://images.pexels.com/photos/762020/pexels-photo-762020.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750"
+  },
+  {
+    name: "Dr. James Wilson",
+    title: "Chief Executive Officer",
+    company: "HydroPower Innovations",
+    image: "https://images.pexels.com/photos/1516680/pexels-photo-1516680.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750"
+  }
+];
 
+const Speakers: React.FC = () => {
   return (
     <section className="pt-16 pb-8 md:pt-24 md:pb-12 bg-white">
       <div className="container mx-auto px-4">
@@ -67,18 +43,18 @@ const Speakers: React.FC = () => {
         </h2>
         
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-          {speakers.map((speaker, index) => (
-            <div key={index} className="flex flex-col items-center text-center">
+          {speakers.map(({ name, title, company, image }) => (
+            <div key={name} className="flex flex-col items-center text-center">
               <div className="relative w-48 h-48 mb-6 overflow-hidden rounded-full border-4 border-amber-500 shadow-lg transform transition-transform duration-300 hover:scale-105">
                 <img 
-                  src={speaker.image} 
-                  alt={speaker.name} 
+                  src={image} 
+                  alt={name} 
                   className="w-full h-full object-cover"
                 />
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">{speaker.name}</h3>
-              <p className="text-gray-600 mb-1">{speaker.title}</p>
-              <p className="text-amber-600 font-semibold">{speaker.company}</p>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">{name}</h3>
+              <p className="text-gray-600 mb-1">{title}</p>
+              <p className="text-amber-600 font-semibold">{company}</p>
             </div>
           ))}
         </div>
