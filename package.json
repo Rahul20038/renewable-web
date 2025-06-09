@@ -24,6 +24,7 @@
     "react-router-dom": "^6.22.2",
     "react-scroll": "^1.9.3",
     "react-use-measure": "^2.1.7",
+    "styled-components": "^6.1.18",
     "tailwind-scrollbar-hide": "^4.0.0"
   },
   "devDependencies": {

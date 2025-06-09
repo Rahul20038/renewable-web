@@ -463,139 +463,79 @@
 // };
 
 // export default Hero;
+// "use client";
+
+// import { useEffect, useState } from "react";
+// import { Helmet } from "react-helmet";
+// import Card from "./ui/globe"; // Import the Card component from globe.tsx
+
+// const Hero: React.FC = () => {
+//   const [isMobile, setIsMobile] = useState(false);
+
+//   useEffect(() => {
+//     const checkMobile = () => {
+//       setIsMobile(window.innerWidth < 768);
+//     };
+
+//     checkMobile();
+//     window.addEventListener("resize", checkMobile);
+//     return () => window.removeEventListener("resize", checkMobile);
+//   }, []);
+
+//   return (
+//     <>
+//       <Helmet>
+//         <title>World Renewable Energy Conference 2026 - Boston</title>
+//       </Helmet>
+
+//       <section className="relative h-screen min-h-[600px] flex items-center justify-start overflow-hidden bg-black w-full">
+//         <div className="absolute inset-0 bg-black bg-opacity-50 z-0" />
+
+//         <div className="w-full relative z-10 h-full">
+//           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 h-full items-center w-full px-0">
+//             <div className="w-full animate-fadeIn will-change-opacity will-change-transform z-10 px-0">
+//               <h1 className="text-4xl md:text-6xl font-bold text-white leading-tight mb-6">
+//                 The World's Premier <br className="hidden md:block" />
+//                 Renewable Energy <br className="hidden md:block" />
+//                 Conference
+//               </h1>
+//               <h2 className="text-2xl md:text-3xl font-light text-amber-400 mb-8">
+//                 Boston, United States • June 12–15, 2026
+//               </h2>
+//               <div className="flex flex-wrap gap-4">
+//                 <a
+//                   href="#register"
+//                   className="bg-amber-500 hover:bg-amber-600 text-gray-900 font-semibold px-8 py-3 rounded-md text-lg transition-colors duration-300 ease-in-out"
+//                 >
+//                   Register Now
+//                 </a>
+//                 <a
+//                   href="#learn-more"
+//                   className="bg-transparent hover:bg-white/10 text-white border border-white font-semibold px-8 py-3 rounded-md text-lg transition-colors duration-300 ease-in-out"
+//                 >
+//                   Learn More
+//                 </a>
+//               </div>
+//             </div>
+
+//             <div className="relative h-full w-full">
+//               <div className="absolute bottom-[100px] md:bottom-[150px] right-0 flex justify-end pr-4">
+//                 {!isMobile && <Card />}
+//               </div>
+//             </div>
+//           </div>
+//         </div>
+//       </section>
+//     </>
+//   );
+// };
+
+// export default Hero;
 "use client";
 
-import { useEffect, useRef, useCallback, memo, useState } from "react";
-import createGlobe, { COBEOptions } from "cobe";
-import { useMotionValue, useSpring } from "framer-motion";
+import { useEffect, useState } from "react";
 import { Helmet } from "react-helmet";
-
-const MOVEMENT_DAMPING = 2000;
-
-const GLOBE_CONFIG: Partial<COBEOptions> = {
-  devicePixelRatio: typeof window !== "undefined" ? Math.min(window.devicePixelRatio, 1.5) : 1,
-  phi: 0,
-  theta: 0.3,
-  dark: 0,
-  diffuse: 0.3,
-  mapSamples: 1500,
-  mapBrightness: 1,
-  baseColor: [1, 1, 1],
-  markerColor: [251 / 255, 1500 / 255, 21 / 255],
-  glowColor: [1, 1, 1],
-  markers: [
-    { location: [14.5995, 120.9842], size: 0.03 },
-    { location: [19.076, 72.8777], size: 0.1 },
-    { location: [23.8103, 90.4125], size: 0.05 },
-    { location: [30.0444, 31.2357], size: 0.07 },
-    { location: [39.9042, 116.4074], size: 0.08 },
-    { location: [-23.5505, -46.6333], size: 0.1 },
-    { location: [19.4326, -99.1332], size: 0.1 },
-    { location: [40.7128, -74.006], size: 0.1 },
-    { location: [34.6937, 135.5022], size: 0.05 },
-    { location: [41.0082, 28.9784], size: 0.06 },
-  ],
-};
-
-const Globe = memo(() => {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const pointerInteracting = useRef<number | null>(null);
-  const pointerMovement = useRef(0);
-  const r = useMotionValue(0);
-  const rs = useSpring(r, { mass: 1, damping: 40, stiffness: 90 });
-  const [globeReady, setGlobeReady] = useState(false);
-
-  const updatePointer = useCallback((val: number | null) => {
-    pointerInteracting.current = val;
-    if (canvasRef.current) {
-      canvasRef.current.style.cursor = val !== null ? "grabbing" : "grab";
-    }
-  }, []);
-
-  const handleMovement = useCallback(
-    (clientX: number) => {
-      if (pointerInteracting.current !== null) {
-        const delta = clientX - pointerInteracting.current;
-        pointerMovement.current = delta;
-        r.set(r.get() + delta / MOVEMENT_DAMPING);
-      }
-    },
-    [r]
-  );
-
-  useEffect(() => {
-    if (!globeReady || !canvasRef.current) return;
-
-    let phi = 0;
-    let width = canvasRef.current.offsetWidth;
-
-    const globe = createGlobe(canvasRef.current, {
-      ...GLOBE_CONFIG,
-      width,
-      height: width,
-      onRender: (state) => {
-        phi = pointerInteracting.current ? phi : phi + 0.0015;
-        state.phi = phi + rs.get();
-      },
-    });
-
-    canvasRef.current.style.opacity = "1";
-
-    const resizeObserver = new ResizeObserver(() => {
-      width = canvasRef.current!.offsetWidth;
-      globe.resize?.(width, width);
-    });
-
-    resizeObserver.observe(canvasRef.current);
-
-    return () => {
-      globe.destroy();
-      resizeObserver.disconnect();
-    };
-  }, [globeReady, rs]);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting) {
-          setGlobeReady(true);
-          observer.disconnect();
-        }
-      },
-      { threshold: 0.2 }
-    );
-
-    if (containerRef.current) observer.observe(containerRef.current);
-
-    return () => observer.disconnect();
-  }, []);
-
-  return (
-    <div
-      ref={containerRef}
-      className="relative aspect-square w-[300px] md:w-[400px] lg:w-[500px]"
-    >
-      {globeReady ? (
-        <canvas
-          className="size-full opacity-0 transition-opacity duration-1000 ease-in-out [contain:layout_paint_size]"
-          ref={canvasRef}
-          onPointerDown={(e) => updatePointer(e.clientX)}
-          onPointerUp={() => updatePointer(null)}
-          onPointerOut={() => updatePointer(null)}
-          onMouseMove={(e) => handleMovement(e.clientX)}
-          onTouchMove={(e) => {
-            if (e.touches.length > 0) handleMovement(e.touches[0].clientX);
-          }}
-        />
-      ) : (
-        <div className="w-full h-full flex items-center justify-center text-white/60 text-sm">
-          Loading globe...
-        </div>
-      )}
-    </div>
-  );
-});
+import Card from "./ui/globe"; // Import the Card component from globe.tsx
 
 const Hero: React.FC = () => {
   const [isMobile, setIsMobile] = useState(false);
@@ -647,8 +587,8 @@ const Hero: React.FC = () => {
             </div>
 
             <div className="relative h-full w-full">
-              <div className="absolute bottom-[100px] md:bottom-[150px] right-0 flex justify-end pr-4">
-                {!isMobile && <Globe />}
+              <div className="absolute bottom-[100px] md:bottom-[100px] right-20 flex justify-end pr-4">
+                {!isMobile && <Card />}
               </div>
             </div>
           </div>
