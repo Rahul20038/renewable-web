@@ -449,9 +449,9 @@
 //               </div>
 //             </div>
 
-//             {/* Globe Positioned Bottom Right */}
+//             {/* Globe Positioned Bottom Right with mobile right adjustment */}
 //             <div className="relative h-full w-full">
-//               <div className="absolute bottom-[150px] right-0 flex justify-end pr-4">
+//               <div className="absolute bottom-[150px] right-0 flex justify-end pr-2 sm:pr-4">
 //                 <Globe />
 //               </div>
 //             </div>
@@ -463,7 +463,6 @@
 // };
 
 // export default Hero;
-
 "use client";
 
 import { useEffect, useRef, useCallback, memo, useState } from "react";
@@ -479,10 +478,10 @@ const GLOBE_CONFIG: Partial<COBEOptions> = {
   theta: 0.3,
   dark: 0,
   diffuse: 0.3,
-  mapSamples: 1500, // slightly reduced for better performance
+  mapSamples: 1000,
   mapBrightness: 1,
   baseColor: [1, 1, 1],
-  markerColor: [251 / 255, 1500 / 255, 21 / 255],
+  markerColor: [251 / 255, 100 / 255, 21 / 255],
   glowColor: [1, 1, 1],
   markers: [
     { location: [14.5995, 120.9842], size: 0.03 },
@@ -500,12 +499,12 @@ const GLOBE_CONFIG: Partial<COBEOptions> = {
 
 const Globe = memo(() => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
   const pointerInteracting = useRef<number | null>(null);
   const pointerMovement = useRef(0);
   const r = useMotionValue(0);
   const rs = useSpring(r, { mass: 1, damping: 40, stiffness: 90 });
   const [globeReady, setGlobeReady] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const updatePointer = useCallback((val: number | null) => {
     pointerInteracting.current = val;
@@ -526,29 +525,37 @@ const Globe = memo(() => {
   );
 
   useEffect(() => {
-    if (!globeReady || !canvasRef.current) return;
+    if (!globeReady) return;
 
     let phi = 0;
-    let width = canvasRef.current.offsetWidth;
+    let width = 0;
 
-    const globe = createGlobe(canvasRef.current, {
+    const updateSize = () => {
+      if (canvasRef.current) width = canvasRef.current.offsetWidth;
+    };
+    updateSize();
+
+    const globe = createGlobe(canvasRef.current!, {
       ...GLOBE_CONFIG,
       width,
       height: width,
       onRender: (state) => {
-        phi = pointerInteracting.current ? phi : phi + 0.0015;
+        if (!pointerInteracting.current) phi += 0.0015;
         state.phi = phi + rs.get();
+        state.width = width;
+        state.height = width;
       },
     });
 
-    canvasRef.current.style.opacity = "1";
+    if (canvasRef.current) {
+      canvasRef.current.style.opacity = "1";
+    }
 
     const resizeObserver = new ResizeObserver(() => {
-      width = canvasRef.current!.offsetWidth;
-      globe.resize?.(width, width); // optional if cobe supports resize
+      updateSize();
     });
 
-    resizeObserver.observe(canvasRef.current);
+    if (canvasRef.current) resizeObserver.observe(canvasRef.current);
 
     return () => {
       globe.destroy();
@@ -577,22 +584,18 @@ const Globe = memo(() => {
       ref={containerRef}
       className="relative aspect-square w-[300px] md:w-[400px] lg:w-[500px]"
     >
-      {globeReady ? (
+      {globeReady && (
         <canvas
-          className="size-full opacity-0 transition-opacity duration-1000 ease-in-out [contain:layout_paint_size]"
+          className="size-full opacity-0 transition-opacity duration-700 [contain:layout_paint_size]"
           ref={canvasRef}
           onPointerDown={(e) => updatePointer(e.clientX)}
           onPointerUp={() => updatePointer(null)}
           onPointerOut={() => updatePointer(null)}
           onMouseMove={(e) => handleMovement(e.clientX)}
-          onTouchMove={(e) => {
-            if (e.touches.length > 0) handleMovement(e.touches[0].clientX);
-          }}
+          onTouchMove={(e) =>
+            e.touches[0] && handleMovement(e.touches[0].clientX)
+          }
         />
-      ) : (
-        <div className="w-full h-full flex items-center justify-center text-white/60 text-sm">
-          Loading globe...
-        </div>
       )}
     </div>
   );
@@ -605,50 +608,53 @@ const Hero: React.FC = () => {
         <title>World Renewable Energy Conference 2026 - Boston</title>
       </Helmet>
 
-    <section className="relative h-screen min-h-[600px] flex items-center justify-start overflow-hidden bg-black w-full">
-  <div className="absolute inset-0 bg-black bg-opacity-50 z-0" />
+      <section className="relative h-screen min-h-[600px] flex items-center justify-start overflow-hidden bg-black">
+        <div className="absolute inset-0 bg-black bg-opacity-50 z-0" />
 
-  <div className="w-full relative z-10 h-full">
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 h-full items-center w-full px-0">
-      <div className="w-full animate-fadeIn will-change-opacity will-change-transform z-10 px-0">
-        <h1 className="text-4xl md:text-6xl font-bold text-white leading-tight mb-6">
-          The World's Premier <br className="hidden md:block" />
-          Renewable Energy <br className="hidden md:block" />
-          Conference
-        </h1>
-        <h2 className="text-2xl md:text-3xl font-light text-amber-400 mb-8">
-          Boston, United States • June 12–15, 2026
-        </h2>
-        <div className="flex flex-wrap gap-4">
-          <a
-            href="#register"
-            className="bg-amber-500 hover:bg-amber-600 text-gray-900 font-semibold px-8 py-3 rounded-md text-lg transition-colors duration-300 ease-in-out"
-          >
-            Register Now
-          </a>
-          <a
-            href="#learn-more"
-            className="bg-transparent hover:bg-white/10 text-white border border-white font-semibold px-8 py-3 rounded-md text-lg transition-colors duration-300 ease-in-out"
-          >
-            Learn More
-          </a>
+        <div className="container mx-auto px-4 relative z-10 h-full w-full">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 h-full items-center">
+            <div className="max-w-3xl animate-fadeIn will-change-opacity will-change-transform z-10">
+              <h1 className="text-4xl md:text-6xl font-bold text-white leading-tight mb-6">
+                The World's Premier <br className="hidden md:block" />
+                Renewable Energy <br className="hidden md:block" />
+                Conference
+              </h1>
+              <h2 className="text-2xl md:text-3xl font-light text-amber-400 mb-8">
+                Boston, United States • June 12–15, 2026
+              </h2>
+              <div className="flex flex-wrap gap-4">
+                <a
+                  href="#register"
+                  className="bg-amber-500 hover:bg-amber-600 text-gray-900 font-semibold px-8 py-3 rounded-md text-lg transition-colors duration-300 ease-in-out"
+                >
+                  Register Now
+                </a>
+                <a
+                  href="#learn-more"
+                  className="bg-transparent hover:bg-white/10 text-white border border-white font-semibold px-8 py-3 rounded-md text-lg transition-colors duration-300 ease-in-out"
+                >
+                  Learn More
+                </a>
+              </div>
+            </div>
+
+            {/* Globe hidden on mobile screens */}
+            <div className="relative h-full w-full hidden sm:block">
+              <div className="absolute bottom-[150px] right-0 flex justify-end pr-4">
+                <Globe />
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
-
-      <div className="relative h-full w-full">
-        <div className="absolute bottom-[100px] md:bottom-[150px] right-0 flex justify-end pr-4">
-          <Globe />
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
+      </section>
     </>
   );
 };
 
 export default Hero;
+
+
+
 
 
 
