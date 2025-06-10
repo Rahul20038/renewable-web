@@ -129,6 +129,7 @@ import { Link as ScrollLink } from 'react-scroll';
 const Header: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false); // State for dropdown
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 10);
@@ -137,6 +138,7 @@ const Header: React.FC = () => {
   }, []);
 
   const toggleMobileMenu = () => setMobileMenuOpen((prev) => !prev);
+  const toggleDropdown = () => setDropdownOpen((prev) => !prev); // Toggle dropdown
 
   return (
     <header
@@ -178,23 +180,66 @@ const Header: React.FC = () => {
           ))}
         </nav>
 
-        {/* Action Buttons */}
+        {/* Action Buttons (Desktop) */}
         <div className="hidden md:flex items-center space-x-4">
-          {[
-            { to: 'register', label: 'Register' },
-            { to: 'partner', label: 'Partner' },
-          ].map(({ to, label }) => (
-            <ScrollLink
-              key={to}
-              to={to}
-              smooth={true}
-              duration={500}
-              offset={-60}
-              className="cursor-pointer bg-amber-500 hover:bg-amber-600 text-gray-900 font-semibold px-4 py-2 rounded transition-colors duration-300 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
+          {/* Registration Dropdown */}
+          <div className="relative">
+            <button
+              onClick={toggleDropdown}
+              className="bg-amber-500 hover:bg-amber-600 text-gray-900 font-semibold px-4 py-2 rounded transition-colors duration-300 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 flex items-center"
             >
-              {label}
-            </ScrollLink>
-          ))}
+              Registration
+              <svg
+                className="ml-2 h-4 w-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M19 9l-7 7-7-7"
+                />
+              </svg>
+            </button>
+            {dropdownOpen && (
+              <div className="absolute top-full mt-2 bg-gray-900 text-white rounded shadow-lg">
+                <ScrollLink
+                  to="register"
+                  smooth={true}
+                  duration={500}
+                  offset={-60}
+                  className="block px-4 py-2 hover:bg-gray-800 cursor-pointer"
+                  onClick={() => setDropdownOpen(false)}
+                >
+                  Register
+                </ScrollLink>
+                <ScrollLink
+                  to="abstract"
+                  smooth={true}
+                  duration={500}
+                  offset={-60}
+                  className="block px-4 py-2 hover:bg-gray-800 cursor-pointer"
+                  onClick={() => setDropdownOpen(false)}
+                >
+                  Abstract Submission
+                </ScrollLink>
+              </div>
+            )}
+          </div>
+
+          {/* Partner Button */}
+          <ScrollLink
+            to="partner"
+            smooth={true}
+            duration={500}
+            offset={-60}
+            className="cursor-pointer bg-amber-500 hover:bg-amber-600 text-gray-900 font-semibold px-4 py-2 rounded transition-colors duration-300 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
+          >
+            Partner
+          </ScrollLink>
         </div>
 
         {/* Mobile Menu Button */}
@@ -252,8 +297,60 @@ const Header: React.FC = () => {
           ))}
         </nav>
         <div className="mt-4 flex flex-col space-y-2">
+          {/* Registration Dropdown in Mobile */}
+          <button
+            onClick={toggleDropdown}
+            className="bg-amber-500 hover:bg-amber-600 text-gray-900 font-semibold px-4 py-2 rounded text-center transition-colors duration-300 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 flex justify-center items-center"
+          >
+            Registration
+            <svg
+              className="ml-2 h-4 w-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M19 9l-7 7-7-7"
+              />
+            </svg>
+          </button>
+          {dropdownOpen && (
+            <div className="flex flex-col space-y-2 pl-4">
+              <ScrollLink
+                to="register"
+                smooth={true}
+                duration={500}
+                offset={-60}
+                className="text-white hover:text-amber-400 transition-colors duration-300 ease-in-out"
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  setDropdownOpen(false);
+                }}
+              >
+                Register
+              </ScrollLink>
+              <ScrollLink
+                to="abstract"
+                smooth={true}
+                duration={500}
+                offset={-60}
+                className="text-white hover:text-amber-400 transition-colors duration-300 ease-in-out"
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  setDropdownOpen(false);
+                }}
+              >
+                Abstract Submission
+              </ScrollLink>
+            </div>
+          )}
+
+          {/* Other Mobile Buttons */}
           {[
-            { to: 'register', label: 'Register' },
             { to: 'partner', label: 'Partner' },
             { to: 'app', label: 'Summit App' },
           ].map(({ to, label }) => (
