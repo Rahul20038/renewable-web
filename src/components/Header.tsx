@@ -127,8 +127,9 @@ import { Link as RouterLink } from 'react-router-dom';
 import { Link as ScrollLink } from 'react-scroll';
 
 const Header: React.FC = () => {
-  const [isScrolled, setIsScrolled] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState<boolean>(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
+  const [dropdownOpen, setDropdownOpen] = useState<boolean>(false);
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 10);
@@ -137,15 +138,18 @@ const Header: React.FC = () => {
   }, []);
 
   const toggleMobileMenu = () => setMobileMenuOpen((prev) => !prev);
+  const toggleDropdown = () => setDropdownOpen((prev) => !prev);
+
+  const handleTabNavigation = (tab: string) => {
+    setDropdownOpen(false);
+    setMobileMenuOpen(false);
+    window.history.replaceState({}, '', `/?tab=${tab}`);
+  };
 
   return (
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ease-in-out
-        ${
-          isScrolled
-            ? 'bg-gray-900/95 py-2 shadow-lg backdrop-blur-sm'
-            : 'bg-transparent py-4'
-        }`}
+        ${isScrolled ? 'bg-gray-900/95 py-2 shadow-lg backdrop-blur-sm' : 'bg-transparent py-4'}`}
     >
       <div className="container mx-auto px-4 flex justify-between items-center">
         <div className="flex items-center">
@@ -178,23 +182,63 @@ const Header: React.FC = () => {
           ))}
         </nav>
 
-        {/* Action Buttons */}
+        {/* Action Buttons (Desktop) */}
         <div className="hidden md:flex items-center space-x-4">
-          {[
-            { to: 'register', label: 'Register' },
-            { to: 'partner', label: 'Partner' },
-          ].map(({ to, label }) => (
-            <ScrollLink
-              key={to}
-              to={to}
-              smooth={true}
-              duration={500}
-              offset={-60}
-              className="cursor-pointer bg-amber-500 hover:bg-amber-600 text-gray-900 font-semibold px-4 py-2 rounded transition-colors duration-300 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
+          {/* Registration Dropdown */}
+          <div className="relative">
+            <button
+              onClick={toggleDropdown}
+              className="bg-amber-500 hover:bg-amber-600 text-gray-900 font-semibold px-4 py-2 rounded transition-colors duration-300 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 flex items-center"
             >
-              {label}
-            </ScrollLink>
-          ))}
+              Registration
+              <svg
+                className="ml-2 h-4 w-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M19 9l-7 7-7-7"
+                />
+              </svg>
+            </button>
+            {dropdownOpen && (
+              <div className="absolute top-full mt-2 bg-gray-900 text-white rounded shadow-lg min-w-[180px]">
+                <ScrollLink
+                  to="register"
+                  smooth={true}
+                  duration={500}
+                  offset={-60}
+                  className="block px-4 py-2 hover:bg-gray-800 transition-colors duration-300 ease-in-out cursor-pointer"
+                  onClick={() => handleTabNavigation('register')}
+                >
+                  Register
+                </ScrollLink>
+                <ScrollLink
+                  to="register"
+                  smooth={true}
+                  duration={500}
+                  offset={-60}
+                  className="block px-4 py-2 hover:bg-gray-800 transition-colors duration-300 ease-in-out cursor-pointer"
+                  onClick={() => handleTabNavigation('abstract')}
+                >
+                  Abstract Submission
+                </ScrollLink>
+              </div>
+            )}
+          </div>
+
+          {/* Partner Button */}
+          <RouterLink
+            to="/partner"
+            className="bg-amber-500 hover:bg-amber-600 text-gray-900 font-semibold px-4 py-2 rounded transition-colors duration-300 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
+          >
+            Partner
+          </RouterLink>
         </div>
 
         {/* Mobile Menu Button */}
@@ -227,9 +271,8 @@ const Header: React.FC = () => {
 
       {/* Mobile Menu */}
       <div
-        className={`md:hidden bg-gray-900 overflow-hidden transition-[max-height,opacity] duration-500 ease-in-out ${
-          mobileMenuOpen ? 'max-h-screen opacity-100 py-4 px-4' : 'max-h-0 opacity-0 py-0 px-4'
-        }`}
+        className={`md:hidden bg-gray-900 overflow-hidden transition-[max-height,opacity] duration-500 ease-in-out
+          ${mobileMenuOpen ? 'max-h-screen opacity-100 py-4 px-4' : 'max-h-0 opacity-0 py-0 px-4'}`}
         aria-hidden={!mobileMenuOpen}
       >
         <nav className="flex flex-col space-y-3">
@@ -252,23 +295,60 @@ const Header: React.FC = () => {
           ))}
         </nav>
         <div className="mt-4 flex flex-col space-y-2">
-          {[
-            { to: 'register', label: 'Register' },
-            { to: 'partner', label: 'Partner' },
-            { to: 'app', label: 'Summit App' },
-          ].map(({ to, label }) => (
-            <ScrollLink
-              key={to}
-              to={to}
-              smooth={true}
-              duration={500}
-              offset={-60}
-              className="cursor-pointer bg-amber-500 hover:bg-amber-600 text-gray-900 font-semibold px-4 py-2 rounded text-center transition-colors duration-300 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
-              onClick={() => setMobileMenuOpen(false)}
+          {/* Registration Dropdown in Mobile */}
+          <button
+            onClick={toggleDropdown}
+            className="bg-amber-500 hover:bg-amber-600 text-gray-900 font-semibold px-4 py-2 rounded text-center transition-colors duration-300 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 flex justify-center items-center"
+          >
+            Registration
+            <svg
+              className="ml-2 h-4 w-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
             >
-              {label}
-            </ScrollLink>
-          ))}
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M19 9l-7 7-7-7"
+              />
+            </svg>
+          </button>
+          {dropdownOpen && (
+            <div className="flex flex-col space-y-2 pl-4">
+              <ScrollLink
+                to="register"
+                smooth={true}
+                duration={500}
+                offset={-60}
+                className="text-white hover:text-amber-400 transition-colors duration-300 ease-in-out"
+                onClick={() => handleTabNavigation('register')}
+              >
+                Register
+              </ScrollLink>
+              <ScrollLink
+                to="register"
+                smooth={true}
+                duration={500}
+                offset={-60}
+                className="text-white hover:text-amber-400 transition-colors duration-300 ease-in-out"
+                onClick={() => handleTabNavigation('abstract')}
+              >
+                Abstract Submission
+              </ScrollLink>
+            </div>
+          )}
+
+          {/* Partner Button */}
+          <RouterLink
+            to="/partner"
+            className="bg-amber-500 hover:bg-amber-600 text-gray-900 font-semibold px-4 py-2 rounded text-center transition-colors duration-300 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
+            onClick={() => setMobileMenuOpen(false)}
+          >
+            Partner
+          </RouterLink>
         </div>
       </div>
     </header>
