@@ -127,9 +127,9 @@ import { Link as RouterLink } from 'react-router-dom';
 import { Link as ScrollLink } from 'react-scroll';
 
 const Header: React.FC = () => {
-  const [isScrolled, setIsScrolled] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [dropdownOpen, setDropdownOpen] = useState(false); // State for dropdown
+  const [isScrolled, setIsScrolled] = useState<boolean>(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
+  const [dropdownOpen, setDropdownOpen] = useState<boolean>(false);
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 10);
@@ -138,16 +138,18 @@ const Header: React.FC = () => {
   }, []);
 
   const toggleMobileMenu = () => setMobileMenuOpen((prev) => !prev);
-  const toggleDropdown = () => setDropdownOpen((prev) => !prev); // Toggle dropdown
+  const toggleDropdown = () => setDropdownOpen((prev) => !prev);
+
+  const handleTabNavigation = (tab: string) => {
+    setDropdownOpen(false);
+    setMobileMenuOpen(false);
+    window.history.replaceState({}, '', `/?tab=${tab}`);
+  };
 
   return (
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ease-in-out
-        ${
-          isScrolled
-            ? 'bg-gray-900/95 py-2 shadow-lg backdrop-blur-sm'
-            : 'bg-transparent py-4'
-        }`}
+        ${isScrolled ? 'bg-gray-900/95 py-2 shadow-lg backdrop-blur-sm' : 'bg-transparent py-4'}`}
     >
       <div className="container mx-auto px-4 flex justify-between items-center">
         <div className="flex items-center">
@@ -205,24 +207,24 @@ const Header: React.FC = () => {
               </svg>
             </button>
             {dropdownOpen && (
-              <div className="absolute top-full mt-2 bg-gray-900 text-white rounded shadow-lg">
+              <div className="absolute top-full mt-2 bg-gray-900 text-white rounded shadow-lg min-w-[180px]">
                 <ScrollLink
                   to="register"
                   smooth={true}
                   duration={500}
                   offset={-60}
-                  className="block px-4 py-2 hover:bg-gray-800 cursor-pointer"
-                  onClick={() => setDropdownOpen(false)}
+                  className="block px-4 py-2 hover:bg-gray-800 transition-colors duration-300 ease-in-out cursor-pointer"
+                  onClick={() => handleTabNavigation('register')}
                 >
                   Register
                 </ScrollLink>
                 <ScrollLink
-                  to="abstract"
+                  to="register"
                   smooth={true}
                   duration={500}
                   offset={-60}
-                  className="block px-4 py-2 hover:bg-gray-800 cursor-pointer"
-                  onClick={() => setDropdownOpen(false)}
+                  className="block px-4 py-2 hover:bg-gray-800 transition-colors duration-300 ease-in-out cursor-pointer"
+                  onClick={() => handleTabNavigation('abstract')}
                 >
                   Abstract Submission
                 </ScrollLink>
@@ -231,15 +233,12 @@ const Header: React.FC = () => {
           </div>
 
           {/* Partner Button */}
-          <ScrollLink
-            to="partner"
-            smooth={true}
-            duration={500}
-            offset={-60}
-            className="cursor-pointer bg-amber-500 hover:bg-amber-600 text-gray-900 font-semibold px-4 py-2 rounded transition-colors duration-300 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
+          <RouterLink
+            to="/partner"
+            className="bg-amber-500 hover:bg-amber-600 text-gray-900 font-semibold px-4 py-2 rounded transition-colors duration-300 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
           >
             Partner
-          </ScrollLink>
+          </RouterLink>
         </div>
 
         {/* Mobile Menu Button */}
@@ -272,9 +271,8 @@ const Header: React.FC = () => {
 
       {/* Mobile Menu */}
       <div
-        className={`md:hidden bg-gray-900 overflow-hidden transition-[max-height,opacity] duration-500 ease-in-out ${
-          mobileMenuOpen ? 'max-h-screen opacity-100 py-4 px-4' : 'max-h-0 opacity-0 py-0 px-4'
-        }`}
+        className={`md:hidden bg-gray-900 overflow-hidden transition-[max-height,opacity] duration-500 ease-in-out
+          ${mobileMenuOpen ? 'max-h-screen opacity-100 py-4 px-4' : 'max-h-0 opacity-0 py-0 px-4'}`}
         aria-hidden={!mobileMenuOpen}
       >
         <nav className="flex flex-col space-y-3">
@@ -326,46 +324,31 @@ const Header: React.FC = () => {
                 duration={500}
                 offset={-60}
                 className="text-white hover:text-amber-400 transition-colors duration-300 ease-in-out"
-                onClick={() => {
-                  setMobileMenuOpen(false);
-                  setDropdownOpen(false);
-                }}
+                onClick={() => handleTabNavigation('register')}
               >
                 Register
               </ScrollLink>
               <ScrollLink
-                to="abstract"
+                to="register"
                 smooth={true}
                 duration={500}
                 offset={-60}
                 className="text-white hover:text-amber-400 transition-colors duration-300 ease-in-out"
-                onClick={() => {
-                  setMobileMenuOpen(false);
-                  setDropdownOpen(false);
-                }}
+                onClick={() => handleTabNavigation('abstract')}
               >
                 Abstract Submission
               </ScrollLink>
             </div>
           )}
 
-          {/* Other Mobile Buttons */}
-          {[
-            { to: 'partner', label: 'Partner' },
-            { to: 'app', label: 'Summit App' },
-          ].map(({ to, label }) => (
-            <ScrollLink
-              key={to}
-              to={to}
-              smooth={true}
-              duration={500}
-              offset={-60}
-              className="cursor-pointer bg-amber-500 hover:bg-amber-600 text-gray-900 font-semibold px-4 py-2 rounded text-center transition-colors duration-300 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              {label}
-            </ScrollLink>
-          ))}
+          {/* Partner Button */}
+          <RouterLink
+            to="/partner"
+            className="bg-amber-500 hover:bg-amber-600 text-gray-900 font-semibold px-4 py-2 rounded text-center transition-colors duration-300 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
+            onClick={() => setMobileMenuOpen(false)}
+          >
+            Partner
+          </RouterLink>
         </div>
       </div>
     </header>

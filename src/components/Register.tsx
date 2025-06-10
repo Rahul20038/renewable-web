@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-interface FormData {
+interface RegisterFormData {
   title: string;
   name: string;
   phone: string;
@@ -16,9 +16,28 @@ interface FormData {
   captcha: string;
 }
 
+interface AbstractFormData {
+  title: string;
+  name: string;
+  phone: string;
+  email: string;
+  organization: string;
+  interestedIn: string;
+  session: string;
+  country: string;
+  abstractFile: File | null;
+  captcha: string;
+}
+
 const Style: React.FC = () => (
   <style>
     {`
+      @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap');
+
+      * {
+        font-family: 'IBM Plex Sans', sans-serif;
+      }
+
       .form-input, .form-select {
         width: 100%;
         padding: 0.75rem 1rem;
@@ -31,6 +50,14 @@ const Style: React.FC = () => (
       .form-input:focus, .form-select:focus {
         outline: none;
         border-color: #000;
+      }
+      .form-input.error, .form-select.error {
+        border-color: #ef4444;
+      }
+      .error-text {
+        color: #ef4444;
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
       }
       .custom-checkbox {
         width: 1.5rem;
@@ -108,22 +135,658 @@ const Style: React.FC = () => (
         font-size: 1.25rem;
         color: #1f2937;
       }
-      .refresh-icon {
+      .refresh-button {
+        background-color: #4db6ac;
+        color: white;
+        padding: 0.5rem;
+        border-radius: 0.5rem;
         cursor: pointer;
-        color: #1f2937;
-        font-size: 1.25rem;
+        transition: transform 0.2s ease;
+      }
+      .refresh-button:hover {
+        transform: rotate(90deg);
       }
       .accommodation-selectors {
         display: flex;
         gap: 1rem;
         flex-wrap: wrap;
       }
+      .tabs {
+        display: flex;
+        border-bottom: 2px solid #e5e7eb;
+        margin-bottom: 2rem;
+      }
+      .tab {
+        flex: 1;
+        text-align: center;
+        padding: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+      .tab.active {
+        background-color: #4db6ac;
+        color: white;
+        border-radius: 0.5rem 0.5rem 0 0;
+      }
+      .tab:hover:not(.active) {
+        background-color: #f3f4f6;
+      }
+      .info-section {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 2rem;
+        padding: 1rem;
+        background-color: #f9fafb;
+        border-radius: 0.5rem;
+      }
+      .info-item {
+        text-align: center;
+      }
+      .info-item label {
+        font-weight: 600;
+        color: #1f2937;
+      }
+      .info-item p {
+        color: #4b5563;
+      }
+      .file-input {
+        padding: 0.5rem;
+        border: 1px solid #e5e7eb;
+        border-radius: 0.5rem;
+        width: 100%;
+      }
+      .file-preview {
+        margin-top: 0.5rem;
+        color: #4b5563;
+        font-size: 0.875rem;
+      }
+      .modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      .modal-content {
+        background-color: white;
+        padding: 2rem;
+        border-radius: 0.5rem;
+        text-align: center;
+      }
+      .modal-button {
+        background-color: #4db6ac;
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 0.5rem;
+        margin-top: 1rem;
+        cursor: pointer;
+      }
+      .button-group {
+        display: flex;
+        gap: 1rem;
+      }
     `}
   </style>
 );
 
-const Register: React.FC = () => {
-  const [formData, setFormData] = useState<FormData>({
+const Register: React.FC<{ captchaCode: string; generateCaptcha: () => void; setRegisterFormData: React.Dispatch<React.SetStateAction<RegisterFormData>>; registerFormData: RegisterFormData; setShowModal: React.Dispatch<React.SetStateAction<boolean>>; resetForm: () => void }> = ({ captchaCode, generateCaptcha, setRegisterFormData, registerFormData, setShowModal, resetForm }) => {
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
+
+  const validateField = (name: string, value: string | number) => {
+    let error = '';
+    if (name === 'email' && value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.toString())) {
+      error = 'Invalid email format';
+    }
+    if (name === 'phone' && value && !/^\+?\d{10,15}$/.test(value.toString())) {
+      error = 'Phone number must be 10-15 digits';
+    }
+    if (['title', 'name', 'institute', 'country', 'registrationType'].includes(name) && !value) {
+      error = 'This field is required';
+    }
+    setErrors((prev) => ({ ...prev, [name]: error }));
+  };
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
+    const { name, value } = e.target;
+    setRegisterFormData((prev) => ({ ...prev, [name]: parseInt(value) || value }));
+    validateField(name, value);
+  };
+
+  const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, checked } = e.target;
+    setRegisterFormData((prev) => ({ ...prev, [name]: checked }));
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const validationErrors: { [key: string]: string } = {};
+    Object.keys(registerFormData).forEach((key) => {
+      validateField(key, registerFormData[key as keyof RegisterFormData] as string | number);
+      if (['title', 'name', 'phone', 'email', 'institute', 'country', 'registrationType'].includes(key) && !registerFormData[key as keyof RegisterFormData]) {
+        validationErrors[key] = 'This field is required';
+      }
+    });
+
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
+    }
+
+    if (registerFormData.captcha.toLowerCase() !== captchaCode.toLowerCase()) {
+      alert('Invalid CAPTCHA code');
+      return;
+    }
+
+    console.log('Register Form submitted:', registerFormData);
+    setShowModal(true);
+  };
+
+  return (
+    <form className="space-y-6">
+      <div>
+        <label className="block text-sm font-semibold text-gray-700 mb-2">
+          Select Title *
+        </label>
+        <select
+          name="title"
+          value={registerFormData.title}
+          onChange={handleChange}
+          required
+          className={`form-select ${errors.title ? 'error' : ''}`}
+        >
+          <option value="">Title</option>
+          <option value="mr">Mr.</option>
+          <option value="ms">Ms.</option>
+          <option value="dr">Dr.</option>
+          <option value="prof">Prof.</option>
+        </select>
+        {errors.title && <p className="error-text">{errors.title}</p>}
+      </div>
+
+      <div>
+        <label className="block text-sm font-semibold text-gray-700 mb-2">
+          Name *
+        </label>
+        <input
+          name="name"
+          placeholder="Name"
+          value={registerFormData.name}
+          onChange={handleChange}
+          required
+          className={`form-input ${errors.name ? 'error' : ''}`}
+        />
+        {errors.name && <p className="error-text">{errors.name}</p>}
+      </div>
+
+      <div>
+        <label className="block text-sm font-semibold text-gray-700 mb-2">
+          Phone *
+        </label>
+        <input
+          name="phone"
+          placeholder="Phone"
+          value={registerFormData.phone}
+          onChange={handleChange}
+          required
+          className={`form-input ${errors.phone ? 'error' : ''}`}
+        />
+        {errors.phone && <p className="error-text">{errors.phone}</p>}
+      </div>
+
+      <div>
+        <label className="block text-sm font-semibold text-gray-700 mb-2">
+          Email *
+        </label>
+        <input
+          name="email"
+          placeholder="Email"
+          value={registerFormData.email}
+          onChange={handleChange}
+          required
+          className={`form-input ${errors.email ? 'error' : ''}`}
+        />
+        {errors.email && <p className="error-text">{errors.email}</p>}
+      </div>
+
+      <div>
+        <label className="block text-sm font-semibold text-gray-700 mb-2">
+          Institute/University *
+        </label>
+        <input
+          name="institute"
+          placeholder="Institute/University"
+          value={registerFormData.institute}
+          onChange={handleChange}
+          required
+          className={`form-input ${errors.institute ? 'error' : ''}`}
+        />
+        {errors.institute && <p className="error-text">{errors.institute}</p>}
+      </div>
+
+      <div>
+        <label className="block text-sm font-semibold text-gray-700 mb-2">
+          Country *
+        </label>
+        <select
+          name="country"
+          value={registerFormData.country}
+          onChange={handleChange}
+          required
+          className={`form-select ${errors.country ? 'error' : ''}`}
+        >
+          <option value="">Choose Country</option>
+          <option value="us">United States</option>
+          <option value="ca">Canada</option>
+          <option value="uk">United Kingdom</option>
+          <option value="au">Australia</option>
+          <option value="de">Germany</option>
+          <option value="fr">France</option>
+          <option value="other">Other</option>
+        </select>
+        {errors.country && <p className="error-text">{errors.country}</p>}
+      </div>
+
+      <div>
+        <label className="block text-sm font-semibold text-gray-700 mb-2">
+          Select Registration Type *
+        </label>
+        <div className="radio-group">
+          <label className="radio-label">
+            <input
+              type="radio"
+              name="registrationType"
+              value="registrationOnly"
+              onChange={handleChange}
+              className="radio-input"
+              required
+            />
+            Registration Only
+          </label>
+          <label className="radio-label">
+            <input
+              type="radio"
+              name="registrationType"
+              value="registrationAndAccommodation"
+              onChange={handleChange}
+              className="radio-input"
+            />
+            Registration and Accommodation
+          </label>
+        </div>
+        {errors.registrationType && <p className="error-text">{errors.registrationType}</p>}
+      </div>
+
+      <div>
+        <label className="block text-sm font-semibold text-gray-700 mb-2">
+          Select Presentation Type
+        </label>
+        <div className="radio-group">
+          {['Speaker', 'Poster', 'Listener/Delegate', 'Sponsor', 'Student', 'Exhibitor'].map((type) => (
+            <label key={type} className="radio-label">
+              <input
+                type="radio"
+                name="presentationType"
+                value={type.toLowerCase()}
+                onChange={handleChange}
+                className="radio-input"
+              />
+              {type}
+            </label>
+          ))}
+        </div>
+      </div>
+
+      <div>
+        <label className="block text-sm font-semibold text-gray-700 mb-2">
+          Select Accommodation Type
+        </label>
+        <div className="accommodation-selectors">
+          <select
+            name="nights"
+            value={registerFormData.nights}
+            onChange={handleChange}
+            className="form-select w-32"
+          >
+            {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((night) => (
+              <option key={night} value={night}>
+                {night} Night{night > 1 ? 's' : ''}
+              </option>
+            ))}
+          </select>
+          <select
+            name="guests"
+            value={registerFormData.guests}
+            onChange={handleChange}
+            className="form-select w-32"
+          >
+            {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((guest) => (
+              <option key={guest} value={guest}>
+                {guest} Guest{guest > 1 ? 's' : ''}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      <div className="payment-summary">
+        <h3 className="text-xl font-semibold mb-4">Payment Summary</h3>
+        <div className="flex justify-between mb-2">
+          <span>Processing Fee in $ (5% processing fee is applicable on total amount):</span>
+          <span>TBD</span>
+        </div>
+        <div className="flex justify-between mb-4">
+          <span>Total Amount Payable in $:</span>
+          <span>TBD</span>
+        </div>
+
+        <p className="text-sm text-gray-600 mb-4">
+          By clicking "Pay Now", you confirm that you have read the terms and conditions, that you understand them and that you agree to be bound by them.
+        </p>
+
+        <div className="captcha-section">
+          <span className="captcha-image">{captchaCode}</span>
+          <span>Enter the code above here:</span>
+          <input
+            name="captcha"
+            value={registerFormData.captcha}
+            onChange={handleChange}
+            required
+            className="form-input w-32"
+          />
+          <span className="refresh-button" onClick={generateCaptcha}>
+            🔄
+          </span>
+        </div>
+      </div>
+
+      <div className="pt-4 button-group">
+        <button
+          type="button"
+          onClick={resetForm}
+          className="w-full bg-gray-400 hover:bg-gray-500 text-white font-semibold px-8 py-4 rounded-lg text-lg transition-all"
+        >
+          Reset Form
+        </button>
+        <button
+          type="submit"
+          onClick={handleSubmit}
+          className="w-full bg-teal-600 hover:bg-teal-700 text-white font-semibold px-8 py-4 rounded-lg text-lg transition-all"
+        >
+          Pay Now
+        </button>
+      </div>
+    </form>
+  );
+};
+
+const AbstractRegistration: React.FC<{ captchaCode: string; generateCaptcha: () => void; setAbstractFormData: React.Dispatch<React.SetStateAction<AbstractFormData>>; abstractFormData: AbstractFormData; setShowModal: React.Dispatch<React.SetStateAction<boolean>>; resetForm: () => void }> = ({ captchaCode, generateCaptcha, setAbstractFormData, abstractFormData, setShowModal, resetForm }) => {
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
+
+  const validateField = (name: string, value: string) => {
+    let error = '';
+    if (name === 'email' && value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+      error = 'Invalid email format';
+    }
+    if (name === 'phone' && value && !/^\+?\d{10,15}$/.test(value)) {
+      error = 'Phone number must be 10-15 digits';
+    }
+    if (['title', 'name', 'email', 'phone'].includes(name) && !value) {
+      error = 'This field is required';
+    }
+    setErrors((prev) => ({ ...prev, [name]: error }));
+  };
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
+    const { name, value } = e.target;
+    setAbstractFormData((prev) => ({ ...prev, [name]: value }));
+    validateField(name, value);
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] || null;
+    setAbstractFormData((prev) => ({ ...prev, abstractFile: file }));
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const validationErrors: { [key: string]: string } = {};
+    Object.keys(abstractFormData).forEach((key) => {
+      if (['title', 'name', 'email', 'phone'].includes(key) && !abstractFormData[key as keyof AbstractFormData]) {
+        validationErrors[key] = 'This field is required';
+      }
+      validateField(key, abstractFormData[key as keyof AbstractFormData] as string);
+    });
+
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
+    }
+
+    if (abstractFormData.captcha.toLowerCase() !== captchaCode.toLowerCase()) {
+      alert('Invalid CAPTCHA code');
+      return;
+    }
+
+    console.log('Abstract Form submitted:', abstractFormData);
+    setShowModal(true);
+  };
+
+  return (
+    <form className="space-y-6">
+      <div className="info-section">
+        <div className="info-item">
+          <label>Conference Dates:</label>
+          <p>April 24-26, 2026</p>
+        </div>
+        <div className="info-item">
+          <label>Submission Deadline:</label>
+          <p>September 15, 2025</p>
+        </div>
+        <div className="info-item">
+          <label>Conference Venue:</label>
+          <p>Seoul, South Korea</p>
+        </div>
+        <div className="info-item">
+          <label>Early Bird Registration:</label>
+          <p>July 28, 2025</p>
+        </div>
+      </div>
+
+      <div>
+        <label className="block text-sm font-semibold text-gray-700 mb-2">
+          Select Titles *
+        </label>
+        <select
+          name="title"
+          value={abstractFormData.title}
+          onChange={handleChange}
+          required
+          className={`form-select ${errors.title ? 'error' : ''}`}
+        >
+          <option value="">Select Titles</option>
+          <option value="mr">Mr.</option>
+          <option value="ms">Ms.</option>
+          <option value="dr">Dr.</option>
+          <option value="prof">Prof.</option>
+        </select>
+        {errors.title && <p className="error-text">{errors.title}</p>}
+      </div>
+
+      <div>
+        <label className="block text-sm font-semibold text-gray-700 mb-2">
+          Your Name *
+        </label>
+        <input
+          name="name"
+          placeholder="Your Name"
+          value={abstractFormData.name}
+          onChange={handleChange}
+          required
+          className={`form-input ${errors.name ? 'error' : ''}`}
+        />
+        {errors.name && <p className="error-text">{errors.name}</p>}
+      </div>
+
+      <div>
+        <label className="block text-sm font-semibold text-gray-700 mb-2">
+          Your Email *
+        </label>
+        <input
+          name="email"
+          placeholder="Your Email"
+          value={abstractFormData.email}
+          onChange={handleChange}
+          required
+          className={`form-input ${errors.email ? 'error' : ''}`}
+        />
+        {errors.email && <p className="error-text">{errors.email}</p>}
+      </div>
+
+      <div>
+        <label className="block text-sm font-semibold text-gray-700 mb-2">
+          Your Phone *
+        </label>
+        <input
+          name="phone"
+          placeholder="Your Phone"
+          value={abstractFormData.phone}
+          onChange={handleChange}
+          required
+          className={`form-input ${errors.phone ? 'error' : ''}`}
+        />
+        {errors.phone && <p className="error-text">{errors.phone}</p>}
+      </div>
+
+      <div>
+        <label className="block text-sm font-semibold text-gray-700 mb-2">
+          Organization Name
+        </label>
+        <input
+          name="organization"
+          placeholder="Organization Name"
+          value={abstractFormData.organization}
+          onChange={handleChange}
+          className="form-input"
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm font-semibold text-gray-700 mb-2">
+          Interested In
+        </label>
+        <input
+          name="interestedIn"
+          placeholder="Interested In"
+          value={abstractFormData.interestedIn}
+          onChange={handleChange}
+          className="form-input"
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm font-semibold text-gray-700 mb-2">
+          Please Select Session
+        </label>
+        <select
+          name="session"
+          value={abstractFormData.session}
+          onChange={handleChange}
+          className="form-select"
+        >
+          <option value="">Please Select Session</option>
+          <option value="session1">Session 1</option>
+          <option value="session2">Session 2</option>
+          <option value="session3">Session 3</option>
+        </select>
+      </div>
+
+      <div>
+        <label className="block text-sm font-semibold text-gray-700 mb-2">
+          Select Country
+        </label>
+        <select
+          name="country"
+          value={abstractFormData.country}
+          onChange={handleChange}
+          className="form-select"
+        >
+          <option value="">Select Country</option>
+          <option value="us">United States</option>
+          <option value="ca">Canada</option>
+          <option value="uk">United Kingdom</option>
+          <option value="au">Australia</option>
+          <option value="de">Germany</option>
+          <option value="fr">France</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+
+      <div>
+        <label className="block text-sm font-semibold text-gray-700 mb-2">
+          Upload Abstract:
+        </label>
+        <input
+          type="file"
+          name="abstractFile"
+          onChange={handleFileChange}
+          className="file-input"
+        />
+        {abstractFormData.abstractFile && (
+          <p className="file-preview">
+            Selected file: {abstractFormData.abstractFile.name} ({(abstractFormData.abstractFile.size / 1024).toFixed(2)} KB)
+          </p>
+        )}
+      </div>
+
+      <div className="captcha-section">
+        <span className="captcha-image">{captchaCode}</span>
+        <span>Enter the code above here:</span>
+        <input
+          name="captcha"
+          value={abstractFormData.captcha}
+          onChange={handleChange}
+          required
+          className="form-input w-32"
+        />
+        <span className="refresh-button" onClick={generateCaptcha}>
+          🔄
+        </span>
+      </div>
+
+      <div className="pt-4 button-group">
+        <button
+          type="button"
+          onClick={resetForm}
+          className="w-full bg-gray-400 hover:bg-gray-500 text-white font-semibold px-8 py-4 rounded-lg text-lg transition-all"
+        >
+          Reset Form
+        </button>
+        <button
+          type="submit"
+          onClick={handleSubmit}
+          className="w-full bg-teal-600 hover:bg-teal-700 text-white font-semibold px-8 py-4 rounded-lg text-lg transition-all"
+        >
+          Submit Abstract
+        </button>
+      </div>
+    </form>
+  );
+};
+
+const ConferenceRegistration: React.FC = () => {
+  const [activeTab, setActiveTab] = useState<'register' | 'abstract'>('register');
+  const [captchaCode, setCaptchaCode] = useState<string>('');
+  const [showModal, setShowModal] = useState(false);
+  const [registerFormData, setRegisterFormData] = useState<RegisterFormData>({
     title: '',
     name: '',
     phone: '',
@@ -138,10 +801,19 @@ const Register: React.FC = () => {
     extraNights: 0,
     captcha: '',
   });
+  const [abstractFormData, setAbstractFormData] = useState<AbstractFormData>({
+    title: '',
+    name: '',
+    phone: '',
+    email: '',
+    organization: '',
+    interestedIn: '',
+    session: '',
+    country: '',
+    abstractFile: null,
+    captcha: '',
+  });
 
-  const [captchaCode, setCaptchaCode] = useState<string>('');
-
-  // Function to generate a random CAPTCHA code
   const generateCaptcha = () => {
     const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
     let result = '';
@@ -149,40 +821,56 @@ const Register: React.FC = () => {
       result += characters.charAt(Math.floor(Math.random() * characters.length));
     }
     setCaptchaCode(result);
-    setFormData((prev) => ({ ...prev, captcha: '' }));
+    if (activeTab === 'register') {
+      setRegisterFormData((prev) => ({ ...prev, captcha: '' }));
+    } else {
+      setAbstractFormData((prev) => ({ ...prev, captcha: '' }));
+    }
   };
 
-  // Initialize CAPTCHA on component mount
+  const resetRegisterForm = () => {
+    setRegisterFormData({
+      title: '',
+      name: '',
+      phone: '',
+      email: '',
+      institute: '',
+      country: '',
+      registrationType: '',
+      presentationType: '',
+      guests: 1,
+      nights: 1,
+      accompanyingPerson: false,
+      extraNights: 0,
+      captcha: '',
+    });
+    generateCaptcha();
+  };
+
+  const resetAbstractForm = () => {
+    setAbstractFormData({
+      title: '',
+      name: '',
+      phone: '',
+      email: '',
+      organization: '',
+      interestedIn: '',
+      session: '',
+      country: '',
+      abstractFile: null,
+      captcha: '',
+    });
+    generateCaptcha();
+  };
+
   useEffect(() => {
     generateCaptcha();
-  }, []);
-
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: parseInt(value) || value }));
-  };
-
-  const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, checked } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: checked }));
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (formData.captcha.toLowerCase() !== captchaCode.toLowerCase()) {
-      alert('Invalid CAPTCHA code');
-      return;
-    }
-    console.log('Form submitted:', formData);
-    alert('Registration submitted successfully!');
-  };
+  }, [activeTab]);
 
   return (
     <div>
       <Style />
-      <section className="bg-gradient-to-b from-gray-50 to-white font-['IBM_Plex_Sans']">
+      <section className="bg-gradient-to-b from-gray-50 to-white">
         <div className="container mx-auto px-4 py-16 max-w-4xl">
           <div className="text-center mb-12">
             <span className="inline-block px-3 py-1 text-sm font-semibold text-black bg-gray-200 rounded-full mb-4">
@@ -193,241 +881,74 @@ const Register: React.FC = () => {
             </h2>
             <div className="w-24 h-1 bg-black mx-auto mb-6"></div>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
-              Secure your exclusive access to the premier renewable energy
-              conference of the year
+              Secure your exclusive access to the premier renewable energy conference of the year
             </p>
           </div>
 
           <div className="bg-white p-8 rounded-2xl shadow-xl border border-gray-100">
-            <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Personal Info */}
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Select Title *
-                </label>
-                <select
-                  name="title"
-                  value={formData.title}
-                  onChange={handleChange}
-                  required
-                  className="form-select"
-                >
-                  <option value="">Title</option>
-                  <option value="mr">Mr.</option>
-                  <option value="ms">Ms.</option>
-                  <option value="dr">Dr.</option>
-                  <option value="prof">Prof.</option>
-                </select>
+            <div className="tabs">
+              <div
+                className={`tab ${activeTab === 'register' ? 'active' : ''}`}
+                onClick={() => setActiveTab('register')}
+              >
+                Register
               </div>
-
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Name *
-                </label>
-                <input
-                  name="name"
-                  placeholder="Name"
-                  value={formData.name}
-                  onChange={handleChange}
-                  required
-                  className="form-input"
-                />
+              <div
+                className={`tab ${activeTab === 'abstract' ? 'active' : ''}`}
+                onClick={() => setActiveTab('abstract')}
+              >
+                Abstract Submission
               </div>
+            </div>
 
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Phone *
-                </label>
-                <input
-                  name="phone"
-                  placeholder="Phone"
-                  value={formData.phone}
-                  onChange={handleChange}
-                  required
-                  className="form-input"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Email *
-                </label>
-                <input
-                  name="email"
-                  placeholder="Email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  required
-                  className="form-input"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Institute/University *
-                </label>
-                <input
-                  name="institute"
-                  placeholder="Institute/University"
-                  value={formData.institute}
-                  onChange={handleChange}
-                  required
-                  className="form-input"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Country *
-                </label>
-                <select
-                  name="country"
-                  value={formData.country}
-                  onChange={handleChange}
-                  required
-                  className="form-select"
-                >
-                  <option value="">Choose Country</option>
-                  <option value="us">United States</option>
-                  <option value="ca">Canada</option>
-                  <option value="uk">United Kingdom</option>
-                  <option value="au">Australia</option>
-                  <option value="de">Germany</option>
-                  <option value="fr">France</option>
-                  <option value="other">Other</option>
-                </select>
-              </div>
-
-              {/* Registration and Presentation Options */}
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Select Registration Type *
-                </label>
-                <div className="radio-group">
-                  <label className="radio-label">
-                    <input
-                      type="radio"
-                      name="registrationType"
-                      value="registrationOnly"
-                      onChange={handleChange}
-                      className="radio-input"
-                      required
-                    />
-                    Registration Only
-                  </label>
-                  <label className="radio-label">
-                    <input
-                      type="radio"
-                      name="registrationType"
-                      value="registrationAndAccommodation"
-                      onChange={handleChange}
-                      className="radio-input"
-                    />
-                    Registration and Accommodation
-                  </label>
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Select Presentation Type
-                </label>
-                <div className="radio-group">
-                  {['Speaker', 'Poster', 'Listener/Delegate', 'Sponsor', 'Student', 'Exhibitor'].map((type) => (
-                    <label key={type} className="radio-label">
-                      <input
-                        type="radio"
-                        name="presentationType"
-                        value={type.toLowerCase()}
-                        onChange={handleChange}
-                        className="radio-input"
-                      />
-                      {type}
-                    </label>
-                  ))}
-                </div>
-              </div>
-
-              {/* Accommodation Type with Dropdowns */}
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Select Accommodation Type
-                </label>
-                <div className="accommodation-selectors">
-                  <select
-                    name="nights"
-                    value={formData.nights}
-                    onChange={handleChange}
-                    className="form-select w-32"
-                  >
-                    {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((night) => (
-                      <option key={night} value={night}>
-                        {night} Night{night > 1 ? 's' : ''}
-                      </option>
-                    ))}
-                  </select>
-                  <select
-                    name="guests"
-                    value={formData.guests}
-                    onChange={handleChange}
-                    className="form-select w-32"
-                  >
-                    {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((guest) => (
-                      <option key={guest} value={guest}>
-                        {guest} Guest{guest > 1 ? 's' : ''}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-
-              {/* Payment Summary */}
-              <div className="payment-summary">
-                <h3 className="text-xl font-semibold mb-4">Payment Summary</h3>
-                <div className="flex justify-between mb-2">
-                  <span>Processing Fee in $ (5% processing fee is applicable on total amount):</span>
-                  <span>TBD</span>
-                </div>
-                <div className="flex justify-between mb-4">
-                  <span>Total Amount Payable in $:</span>
-                  <span>TBD</span>
-                </div>
-
-                <p className="text-sm text-gray-600 mb-4">
-                  By clicking "Pay Now", you confirm that you have read the terms and conditions, that you understand them and that you agree to be bound by them.
-                </p>
-
-                <div className="captcha-section">
-                  <span className="captcha-image">{captchaCode}</span>
-                  <span>Enter the code above here:</span>
-                  <input
-                    name="captcha"
-                    value={formData.captcha}
-                    onChange={handleChange}
-                    required
-                    className="form-input w-32"
-                  />
-                  <span className="refresh-icon" onClick={generateCaptcha}>
-                    🔄
-                  </span>
-                </div>
-              </div>
-
-              {/* Submit Button */}
-              <div className="pt-4">
-                <button
-                  type="submit"
-                  className="w-full bg-teal-600 hover:bg-teal-700 text-white font-semibold px-8 py-4 rounded-lg text-lg transition-all"
-                >
-                  Pay Now
-                </button>
-              </div>
-            </form>
+            {activeTab === 'register' ? (
+              <Register
+                captchaCode={captchaCode}
+                generateCaptcha={generateCaptcha}
+                setRegisterFormData={setRegisterFormData}
+                registerFormData={registerFormData}
+                setShowModal={setShowModal}
+                resetForm={resetRegisterForm}
+              />
+            ) : (
+              <AbstractRegistration
+                captchaCode={captchaCode}
+                generateCaptcha={generateCaptcha}
+                setAbstractFormData={setAbstractFormData}
+                abstractFormData={abstractFormData}
+                setShowModal={setShowModal}
+                resetForm={resetAbstractForm}
+              />
+            )}
           </div>
         </div>
       </section>
+
+      {showModal && (
+        <div className="modal">
+          <div className="modal-content">
+            <h3 className="text-xl font-semibold mb-4">
+              {activeTab === 'register' ? 'Registration Successful!' : 'Abstract Submitted Successfully!'}
+            </h3>
+            <p className="mb-4">
+              {activeTab === 'register'
+                ? 'Thank you for registering for the Renewable Energy Summit 2026.'
+                : 'Your abstract has been submitted successfully.'}
+            </p>
+            <button
+              className="modal-button"
+              onClick={() => {
+                setShowModal(false);
+                activeTab === 'register' ? resetRegisterForm() : resetAbstractForm();
+              }}
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
 
-export default Register;
+export default ConferenceRegistration;
