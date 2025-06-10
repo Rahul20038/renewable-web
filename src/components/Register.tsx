@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 
 interface RegisterFormData {
@@ -27,6 +28,11 @@ interface AbstractFormData {
   country: string;
   abstractFile: File | null;
   captcha: string;
+}
+
+interface PricingConfig {
+  processingFee: number;
+  totalAmount: number;
 }
 
 const Style: React.FC = () => (
@@ -234,8 +240,62 @@ const Style: React.FC = () => (
   </style>
 );
 
-const Register: React.FC<{ captchaCode: string; generateCaptcha: () => void; setRegisterFormData: React.Dispatch<React.SetStateAction<RegisterFormData>>; registerFormData: RegisterFormData; setShowModal: React.Dispatch<React.SetStateAction<boolean>>; resetForm: () => void }> = ({ captchaCode, generateCaptcha, setRegisterFormData, registerFormData, setShowModal, resetForm }) => {
+const Register: React.FC<{
+  captchaCode: string;
+  generateCaptcha: () => void;
+  setRegisterFormData: React.Dispatch<React.SetStateAction<RegisterFormData>>;
+  registerFormData: RegisterFormData;
+  setShowModal: React.Dispatch<React.SetStateAction<boolean>>;
+  resetForm: () => void;
+}> = ({ captchaCode, generateCaptcha, setRegisterFormData, registerFormData, setShowModal, resetForm }) => {
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const [pricing, setPricing] = useState<PricingConfig | null>(null);
+  const [pricingError, setPricingError] = useState<string>('');
+
+  const baseUrl = import.meta.env.VITE_BASE_URL;
+
+  const fetchPricing = async () => {
+    if (!registerFormData.registrationType || !registerFormData.presentationType) {
+      setPricing(null);
+      return;
+    }
+
+    try {
+      const response = await fetch(`${baseUrl}/api/registration/get-pricing-config`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          registrationType: registerFormData.registrationType.toUpperCase().replace('AND', '_'),
+          presentationType: registerFormData.presentationType.toUpperCase(),
+          numberOfNights: registerFormData.nights,
+          numberOfGuests: registerFormData.guests,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch pricing');
+      }
+
+      const data: PricingConfig = await response.json();
+      setPricing(data);
+      setPricingError('');
+    } catch (error) {
+      console.error('Error fetching pricing:', error);
+      setPricing(null);
+      setPricingError('Unable to load pricing details. Please try again.');
+    }
+  };
+
+  useEffect(() => {
+    fetchPricing();
+  }, [
+    registerFormData.registrationType,
+    registerFormData.presentationType,
+    registerFormData.nights,
+    registerFormData.guests,
+  ]);
 
   const validateField = (name: string, value: string | number) => {
     let error = '';
@@ -284,7 +344,12 @@ const Register: React.FC<{ captchaCode: string; generateCaptcha: () => void; set
       return;
     }
 
-    console.log('Register Form submitted:', registerFormData);
+    if (!pricing) {
+      alert('Pricing details are not available. Please try again.');
+      return;
+    }
+
+    console.log('Register Form submitted:', { ...registerFormData, pricing });
     setShowModal(true);
   };
 
@@ -477,13 +542,14 @@ const Register: React.FC<{ captchaCode: string; generateCaptcha: () => void; set
 
       <div className="payment-summary">
         <h3 className="text-xl font-semibold mb-4">Payment Summary</h3>
+        {pricingError && <p className="error-text mb-2">{pricingError}</p>}
         <div className="flex justify-between mb-2">
           <span>Processing Fee in $ (5% processing fee is applicable on total amount):</span>
-          <span>TBD</span>
+          <span>{pricing ? `$${pricing.processingFee.toFixed(2)}` : 'TBD'}</span>
         </div>
         <div className="flex justify-between mb-4">
           <span>Total Amount Payable in $:</span>
-          <span>TBD</span>
+          <span>{pricing ? `$${pricing.totalAmount.toFixed(2)}` : 'TBD'}</span>
         </div>
 
         <p className="text-sm text-gray-600 mb-4">
@@ -526,7 +592,14 @@ const Register: React.FC<{ captchaCode: string; generateCaptcha: () => void; set
   );
 };
 
-const AbstractRegistration: React.FC<{ captchaCode: string; generateCaptcha: () => void; setAbstractFormData: React.Dispatch<React.SetStateAction<AbstractFormData>>; abstractFormData: AbstractFormData; setShowModal: React.Dispatch<React.SetStateAction<boolean>>; resetForm: () => void }> = ({ captchaCode, generateCaptcha, setAbstractFormData, abstractFormData, setShowModal, resetForm }) => {
+const AbstractRegistration: React.FC<{
+  captchaCode: string;
+  generateCaptcha: () => void;
+  setAbstractFormData: React.Dispatch<React.SetStateAction<AbstractFormData>>;
+  abstractFormData: AbstractFormData;
+  setShowModal: React.Dispatch<React.SetStateAction<boolean>>;
+  resetForm: () => void;
+}> = ({ captchaCode, generateCaptcha, setAbstractFormData, abstractFormData, setShowModal, resetForm }) => {
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
   const validateField = (name: string, value: string) => {
