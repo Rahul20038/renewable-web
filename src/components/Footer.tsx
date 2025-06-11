@@ -34,7 +34,6 @@ const Footer: React.FC = () => {
           </p>
         </div>
         <WorldMap
-          className="h-[30px]" // ⬅️ Reduced map height significantly
           dots={[
             {
               start: { lat: 64.2008, lng: -149.4937 },
@@ -169,17 +168,16 @@ const Footer: React.FC = () => {
 
         {/* Bottom Line */}
         <div className="border-t border-gray-800 mt-12 pt-8 flex flex-col items-center space-y-3">
-  <button
-    onClick={() => window.location.href = "/admin-login"} // Change to router.push if needed
-    className="text-sm text-gray-400 hover:text-white transition-colors underline"
-  >
-    Admin Login
-  </button>
-
-  <p className="text-center text-gray-500 text-sm">
-    © 2025 Renewable Meet 2026. All rights reserved.
-  </p>
-</div>
+          <button
+            onClick={() => window.location.href = "/admin-login"}
+            className="text-sm text-gray-400 hover:text-white transition-colors underline"
+          >
+            Admin Login
+          </button>
+          <p className="text-center text-gray-500 text-sm">
+            © 2025 Renewable Meet 2026. All rights reserved.
+          </p>
+        </div>
       </div>
     </footer>
   );

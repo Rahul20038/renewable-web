@@ -557,43 +557,43 @@ const Hero: React.FC = () => {
       </Helmet>
 
       <section className="relative h-screen min-h-[600px] flex items-center justify-start overflow-hidden bg-black w-full">
-        <div className="absolute inset-0 bg-black bg-opacity-50 z-0" />
+  <div className="absolute inset-0 bg-black bg-opacity-50 z-0" />
 
-        <div className="w-full relative z-10 h-full">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 h-full items-center w-full px-0">
-            <div className="w-full animate-fadeIn will-change-opacity will-change-transform z-10 px-0">
-              <h1 className="text-4xl md:text-6xl font-bold text-white leading-tight mb-6">
-                The World's Premier <br className="hidden md:block" />
-                Renewable Energy <br className="hidden md:block" />
-                Conference
-              </h1>
-              <h2 className="text-2xl md:text-3xl font-light text-amber-400 mb-8">
-                Boston, United States • June 12–15, 2026
-              </h2>
-              <div className="flex flex-wrap gap-4">
-                <a
-                  href="#register"
-                  className="bg-amber-500 hover:bg-amber-600 text-gray-900 font-semibold px-8 py-3 rounded-md text-lg transition-colors duration-300 ease-in-out"
-                >
-                  Register Now
-                </a>
-                <a
-                  href="#learn-more"
-                  className="bg-transparent hover:bg-white/10 text-white border border-white font-semibold px-8 py-3 rounded-md text-lg transition-colors duration-300 ease-in-out"
-                >
-                  Learn More
-                </a>
-              </div>
-            </div>
-
-            <div className="relative h-full w-full">
-              <div className="absolute bottom-[100px] md:bottom-[100px] right-20 flex justify-end pr-4">
-                {!isMobile && <Card />}
-              </div>
-            </div>
-          </div>
+  <div className="w-full relative z-10 h-full">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 h-full items-center w-full px-0">
+      <div className="w-full animate-fadeIn will-change-opacity will-change-transform z-10 px-0 pl-8 md:pl-12">
+        <h1 className="text-4xl md:text-6xl font-bold text-white leading-tight mb-6">
+          The World's Premier <br className="hidden md:block" />
+          Renewable Energy <br className="hidden md:block" />
+          Conference
+        </h1>
+        <h2 className="text-2xl md:text-3xl font-light text-amber-400 mb-8">
+          Venue, United States • June 12–15, 2026
+        </h2>
+        <div className="flex flex-wrap gap-4">
+          <a
+            href="#register"
+            className="bg-amber-500 hover:bg-amber-600 text-gray-900 font-semibold px-8 py-3 rounded-md text-lg transition-colors duration-300 ease-in-out"
+          >
+            Register Now
+          </a>
+          <a
+            href="#abstractsubmission"
+            className="bg-amber-500 hover:bg-amber-600 text-gray-900 font-semibold px-8 py-3 rounded-md text-lg transition-colors duration-300 ease-in-out"
+          >
+            Abstract Submission
+          </a>
         </div>
-      </section>
+      </div>
+
+      <div className="relative h-full w-full">
+        <div className="absolute bottom-[100px] md:bottom-[100px] right-20 flex justify-end pr-4">
+          {!isMobile && <Card />}
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
     </>
   );
 };

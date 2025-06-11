@@ -15,7 +15,9 @@ import {
   CurrencyCircleDollar,
   Stamp,
 } from "phosphor-react";
+import { Calendar, MapPin, Clock, FileText, Users, Star } from "lucide-react";
 import { useLucideDrawerAnimation } from "@/components/ui/lucide-icon-drawer";
+import { motion } from "framer-motion";
 
 const industries = [
   { icon: <AirplaneTilt size={40} color="#00a3ff" />, label: "Aerospace" },
@@ -54,45 +56,97 @@ const About: React.FC = () => {
 
           {/* Info Boxes */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
-            <div className="border border-gray-300 rounded-lg p-4">
-              <h3 className="text-lg font-semibold text-gray-900 mb-3">Conference Details</h3>
-              <table className="w-full text-left">
-                <tbody>
-                  <tr className="border-b border-gray-200">
-                    <td className="py-1 font-medium text-gray-700">Conference Date</td>
-                    <td className="py-1 text-gray-600">April 24–26, 2026</td>
-                  </tr>
-                  <tr className="border-b border-gray-200">
-                    <td className="py-1 font-medium text-gray-700">Venue</td>
-                    <td className="py-1 text-gray-600">Seoul, South Korea</td>
-                  </tr>
-                  <tr className="border-b border-gray-200">
-                    <td className="py-1 font-medium text-gray-700">Earlybird Registration</td>
-                    <td className="py-1 text-gray-600">July 28, 2025</td>
-                  </tr>
-                  <tr className="border-b border-gray-200">
-                    <td className="py-1 font-medium text-gray-700">Submission Deadline</td>
-                    <td className="py-1 text-gray-600">September 15, 2025</td>
-                  </tr>
-                  <tr>
-                    <td className="py-1 font-medium text-gray-700">Workshops</td>
-                    <td className="py-1 text-gray-600">10 Workshops</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
+            {/* Conference Details Card */}
+            <motion.div
+              className="bg-white border border-gray-200 rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow duration-300"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+            >
+              <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
+                <Calendar className="w-6 h-6 text-amber-500 mr-2" />
+                Conference Details
+              </h3>
+              <div className="space-y-3">
+                {[
+                  {
+                    label: "Conference Date",
+                    value: "April 24–26, 2026",
+                    icon: <Calendar className="w-5 h-5 text-gray-500" />,
+                  },
+                  {
+                    label: "Venue",
+                    value: "Seoul, South Korea",
+                    icon: <MapPin className="w-5 h-5 text-gray-500" />,
+                  },
+                  {
+                    label: "Earlybird Registration",
+                    value: "July 28, 2025",
+                    icon: <Clock className="w-5 h-5 text-gray-500" />,
+                  },
+                  {
+                    label: "Submission Deadline",
+                    value: "September 15, 2025",
+                    icon: <FileText className="w-5 h-5 text-gray-500" />,
+                  },
+                  {
+                    label: "Workshops",
+                    value: "10 Workshops",
+                    icon: <Users className="w-5 h-5 text-gray-500" />,
+                  },
+                ].map((item, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center justify-between py-2 px-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors duration-200"
+                  >
+                    <div className="flex items-center">
+                      {item.icon}
+                      <span className="ml-3 font-medium text-gray-700">{item.label}</span>
+                    </div>
+                    <span className="text-gray-600">{item.value}</span>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
 
-            <div className="border border-gray-300 rounded-lg p-4">
-              <h3 className="text-lg font-semibold text-gray-900 mb-3">Highlights</h3>
-              <ul className="list-disc list-inside text-gray-600 space-y-1">
-                <li>76 Plenary, Keynote & Invited Speakers</li>
-                <li>Tentative Program Released</li>
-                <li>24 Exhibitors Participating</li>
-                <li>Multiple Sponsor Opportunities</li>
-                <li>Global Media Coverage</li>
-                <li className="font-semibold text-gray-700">Seoul 2026 Edition Announced</li>
+            {/* Highlights Card */}
+            <motion.div
+              className="bg-white border border-gray-200 rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow duration-300"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+            >
+              <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
+                <Star className="w-6 h-6 text-amber-500 mr-2" />
+                Highlights
+              </h3>
+              <ul className="space-y-3">
+                {[
+                  "76 Plenary, Keynote & Invited Speakers",
+                  "Tentative Program Released",
+                  "24 Exhibitors Participating",
+                  "Multiple Sponsor Opportunities",
+                  "Global Media Coverage",
+                  "Seoul 2026 Edition Announced",
+                ].map((item, index) => (
+                  <li
+                    key={index}
+                    className={`flex items-start ${
+                      item === "Seoul 2026 Edition Announced"
+                        ? "text-amber-600 font-semibold"
+                        : "text-gray-600"
+                    }`}
+                  >
+                    <span
+                      className={`inline-block w-2 h-2 rounded-full mt-2 mr-3 ${
+                        item === "Seoul 2026 Edition Announced" ? "bg-amber-500" : "bg-gray-400"
+                      }`}
+                    />
+                    <span>{item}</span>
+                  </li>
+                ))}
               </ul>
-            </div>
+            </motion.div>
           </div>
         </div>
       </section>

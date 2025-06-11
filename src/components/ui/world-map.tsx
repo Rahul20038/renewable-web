@@ -10,11 +10,13 @@ interface MapProps {
     end: { lat: number; lng: number; label?: string };
   }>;
   lineColor?: string;
+  className?: string; // Added to allow passing Tailwind classes
 }
 
 export function WorldMap({
   dots = [],
   lineColor = "#0ea5e9",
+  className = "",
 }: MapProps) {
   const svgRef = useRef<SVGSVGElement>(null);
   const [theme, setTheme] = useState<"dark" | "light">("light");
@@ -48,7 +50,9 @@ export function WorldMap({
   };
 
   return (
-    <div className="w-screen h-[70vh] relative font-sans overflow-hidden dark:bg-black bg-white">
+    <div
+      className={`w-[100%] max-w-25xl mx-auto h-[70vh] relative font-sans overflow-hidden dark:bg-black bg-white ${className}`}
+    >
       {/* World Map Image */}
       <img
         src={`data:image/svg+xml;utf8,${encodeURIComponent(svgMap)}`}
