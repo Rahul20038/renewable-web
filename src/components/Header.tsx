@@ -120,7 +120,6 @@
 
 // export default Header;
 
-
 import React, { useState, useEffect } from 'react';
 import { Sun } from 'lucide-react';
 import { Link as RouterLink } from 'react-router-dom';
@@ -144,6 +143,12 @@ const Header: React.FC = () => {
     setDropdownOpen(false);
     setMobileMenuOpen(false);
     window.history.replaceState({}, '', `/?tab=${tab}`);
+  };
+
+  const handleSessionsClick = () => {
+    console.log("Sessions link clicked, navigating to /conference-topics");
+    setDropdownOpen(false);
+    setMobileMenuOpen(false);
   };
 
   return (
@@ -229,16 +234,13 @@ const Header: React.FC = () => {
                 >
                   Abstract Submission
                 </ScrollLink>
-                <ScrollLink
-                  to="sessions"
-                  smooth={true}
-                  duration={500}
-                  offset={-60}
-                  className="block px-4 py-2 hover:bg-gray-800 transition-colors duration-300 ease-in-out cursor-pointer"
-                  onClick={() => handleTabNavigation('sessions')}
+                <RouterLink
+                  to="/conference-topics"
+                  className="block px-4 py-2 hover:bg-gray-800 transition-colors duration-300 ease-in-out"
+                  onClick={handleSessionsClick}
                 >
                   Sessions
-                </ScrollLink>
+                </RouterLink>
               </div>
             )}
           </div>
@@ -349,19 +351,13 @@ const Header: React.FC = () => {
               >
                 Abstract Submission
               </ScrollLink>
-              <ScrollLink
-                to="sessions"
-                smooth={true}
-                duration={500}
-                offset={-60}
+              <RouterLink
+                to="/conference-topics"
                 className="text-white hover:text-amber-400 transition-colors duration-300 ease-in-out"
-                onClick={() => {
-                  handleTabNavigation('sessions');
-                  setMobileMenuOpen(false);
-                }}
+                onClick={handleSessionsClick}
               >
                 Sessions
-              </ScrollLink>
+              </RouterLink>
             </div>
           )}
         </div>
