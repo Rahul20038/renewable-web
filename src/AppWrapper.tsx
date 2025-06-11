@@ -11,7 +11,7 @@ import AgendaPage from './pages/AgendaPage';
 import GalleryPage from './pages/GalleryPage';
 import PartnersPage from './pages/PartnersPage';
 import ContactPage from './pages/ContactPage';
-
+import ConferenceTopics from './pages/ConferenceTopics';
 import AdminLogin from './Admin/Adminlogin';
 import AdminDashboard from './Admin/AdminDashboard';
 import AdminAccommodations from './Admin/AdminAccommodations';
@@ -49,6 +49,8 @@ const AppWrapper = () => {
           <Route path="/gallery" element={<GalleryPage />} />
           <Route path="/partners" element={<PartnersPage />} />
           <Route path="/contact" element={<ContactPage />} />
+          <Route path="/conference-topics" element={<ConferenceTopics />} />
+          
 
           {/* Admin Routes */}
           <Route path="/admin-login" element={<AdminLogin />} />
