@@ -60,6 +60,7 @@ const AppWrapper = () => {
           <Route path="/admin-abstract-submissions" element={<AdminAbstractSubmissions />} />
           <Route path="/admin-manage-events" element={<AdminManageEvents />} />
           <Route path="/admin-interests" element={<AdminInterests />} />
+          
         </Routes>
       </main>
       {!isAdminRoute && <Footer />}
