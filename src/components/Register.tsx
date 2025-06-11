@@ -1,5 +1,6 @@
-
 import React, { useState, useEffect } from 'react';
+import PersonalInfoForm from './AbstactSubmission';
+import PaymentInfoForm from './RegistrationForSession';
 
 interface RegisterFormData {
   title: string;
@@ -28,11 +29,6 @@ interface AbstractFormData {
   country: string;
   abstractFile: File | null;
   captcha: string;
-}
-
-interface PricingConfig {
-  processingFee: number;
-  totalAmount: number;
 }
 
 const Style: React.FC = () => (
@@ -239,358 +235,6 @@ const Style: React.FC = () => (
     `}
   </style>
 );
-
-const Register: React.FC<{
-  captchaCode: string;
-  generateCaptcha: () => void;
-  setRegisterFormData: React.Dispatch<React.SetStateAction<RegisterFormData>>;
-  registerFormData: RegisterFormData;
-  setShowModal: React.Dispatch<React.SetStateAction<boolean>>;
-  resetForm: () => void;
-}> = ({ captchaCode, generateCaptcha, setRegisterFormData, registerFormData, setShowModal, resetForm }) => {
-  const [errors, setErrors] = useState<{ [key: string]: string }>({});
-  const [pricing, setPricing] = useState<PricingConfig | null>(null);
-  const [pricingError, setPricingError] = useState<string>('');
-
-  const baseUrl = import.meta.env.VITE_BASE_URL;
-
-  const fetchPricing = async () => {
-    if (!registerFormData.registrationType || !registerFormData.presentationType) {
-      setPricing(null);
-      return;
-    }
-
-    try {
-      const response = await fetch(`${baseUrl}/api/registration/get-pricing-config`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          registrationType: registerFormData.registrationType.toUpperCase().replace('AND', '_'),
-          presentationType: registerFormData.presentationType.toUpperCase(),
-          numberOfNights: registerFormData.nights,
-          numberOfGuests: registerFormData.guests,
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch pricing');
-      }
-
-      const data: PricingConfig = await response.json();
-      setPricing(data);
-      setPricingError('');
-    } catch (error) {
-      console.error('Error fetching pricing:', error);
-      setPricing(null);
-      setPricingError('Unable to load pricing details. Please try again.');
-    }
-  };
-
-  useEffect(() => {
-    fetchPricing();
-  }, [
-    registerFormData.registrationType,
-    registerFormData.presentationType,
-    registerFormData.nights,
-    registerFormData.guests,
-  ]);
-
-  const validateField = (name: string, value: string | number) => {
-    let error = '';
-    if (name === 'email' && value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.toString())) {
-      error = 'Invalid email format';
-    }
-    if (name === 'phone' && value && !/^\+?\d{10,15}$/.test(value.toString())) {
-      error = 'Phone number must be 10-15 digits';
-    }
-    if (['title', 'name', 'institute', 'country', 'registrationType'].includes(name) && !value) {
-      error = 'This field is required';
-    }
-    setErrors((prev) => ({ ...prev, [name]: error }));
-  };
-
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
-    const { name, value } = e.target;
-    setRegisterFormData((prev) => ({ ...prev, [name]: parseInt(value) || value }));
-    validateField(name, value);
-  };
-
-  const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, checked } = e.target;
-    setRegisterFormData((prev) => ({ ...prev, [name]: checked }));
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const validationErrors: { [key: string]: string } = {};
-    Object.keys(registerFormData).forEach((key) => {
-      validateField(key, registerFormData[key as keyof RegisterFormData] as string | number);
-      if (['title', 'name', 'phone', 'email', 'institute', 'country', 'registrationType'].includes(key) && !registerFormData[key as keyof RegisterFormData]) {
-        validationErrors[key] = 'This field is required';
-      }
-    });
-
-    if (Object.keys(validationErrors).length > 0) {
-      setErrors(validationErrors);
-      return;
-    }
-
-    if (registerFormData.captcha.toLowerCase() !== captchaCode.toLowerCase()) {
-      alert('Invalid CAPTCHA code');
-      return;
-    }
-
-    if (!pricing) {
-      alert('Pricing details are not available. Please try again.');
-      return;
-    }
-
-    console.log('Register Form submitted:', { ...registerFormData, pricing });
-    setShowModal(true);
-  };
-
-  return (
-    <form className="space-y-6">
-      <div>
-        <label className="block text-sm font-semibold text-gray-700 mb-2">
-          Select Title *
-        </label>
-        <select
-          name="title"
-          value={registerFormData.title}
-          onChange={handleChange}
-          required
-          className={`form-select ${errors.title ? 'error' : ''}`}
-        >
-          <option value="">Title</option>
-          <option value="mr">Mr.</option>
-          <option value="ms">Ms.</option>
-          <option value="dr">Dr.</option>
-          <option value="prof">Prof.</option>
-        </select>
-        {errors.title && <p className="error-text">{errors.title}</p>}
-      </div>
-
-      <div>
-        <label className="block text-sm font-semibold text-gray-700 mb-2">
-          Name *
-        </label>
-        <input
-          name="name"
-          placeholder="Name"
-          value={registerFormData.name}
-          onChange={handleChange}
-          required
-          className={`form-input ${errors.name ? 'error' : ''}`}
-        />
-        {errors.name && <p className="error-text">{errors.name}</p>}
-      </div>
-
-      <div>
-        <label className="block text-sm font-semibold text-gray-700 mb-2">
-          Phone *
-        </label>
-        <input
-          name="phone"
-          placeholder="Phone"
-          value={registerFormData.phone}
-          onChange={handleChange}
-          required
-          className={`form-input ${errors.phone ? 'error' : ''}`}
-        />
-        {errors.phone && <p className="error-text">{errors.phone}</p>}
-      </div>
-
-      <div>
-        <label className="block text-sm font-semibold text-gray-700 mb-2">
-          Email *
-        </label>
-        <input
-          name="email"
-          placeholder="Email"
-          value={registerFormData.email}
-          onChange={handleChange}
-          required
-          className={`form-input ${errors.email ? 'error' : ''}`}
-        />
-        {errors.email && <p className="error-text">{errors.email}</p>}
-      </div>
-
-      <div>
-        <label className="block text-sm font-semibold text-gray-700 mb-2">
-          Institute/University *
-        </label>
-        <input
-          name="institute"
-          placeholder="Institute/University"
-          value={registerFormData.institute}
-          onChange={handleChange}
-          required
-          className={`form-input ${errors.institute ? 'error' : ''}`}
-        />
-        {errors.institute && <p className="error-text">{errors.institute}</p>}
-      </div>
-
-      <div>
-        <label className="block text-sm font-semibold text-gray-700 mb-2">
-          Country *
-        </label>
-        <select
-          name="country"
-          value={registerFormData.country}
-          onChange={handleChange}
-          required
-          className={`form-select ${errors.country ? 'error' : ''}`}
-        >
-          <option value="">Choose Country</option>
-          <option value="us">United States</option>
-          <option value="ca">Canada</option>
-          <option value="uk">United Kingdom</option>
-          <option value="au">Australia</option>
-          <option value="de">Germany</option>
-          <option value="fr">France</option>
-          <option value="other">Other</option>
-        </select>
-        {errors.country && <p className="error-text">{errors.country}</p>}
-      </div>
-
-      <div>
-        <label className="block text-sm font-semibold text-gray-700 mb-2">
-          Select Registration Type *
-        </label>
-        <div className="radio-group">
-          <label className="radio-label">
-            <input
-              type="radio"
-              name="registrationType"
-              value="registrationOnly"
-              onChange={handleChange}
-              className="radio-input"
-              required
-            />
-            Registration Only
-          </label>
-          <label className="radio-label">
-            <input
-              type="radio"
-              name="registrationType"
-              value="registrationAndAccommodation"
-              onChange={handleChange}
-              className="radio-input"
-            />
-            Registration and Accommodation
-          </label>
-        </div>
-        {errors.registrationType && <p className="error-text">{errors.registrationType}</p>}
-      </div>
-
-      <div>
-        <label className="block text-sm font-semibold text-gray-700 mb-2">
-          Select Presentation Type
-        </label>
-        <div className="radio-group">
-          {['Speaker', 'Poster', 'Listener/Delegate', 'Sponsor', 'Student', 'Exhibitor'].map((type) => (
-            <label key={type} className="radio-label">
-              <input
-                type="radio"
-                name="presentationType"
-                value={type.toLowerCase()}
-                onChange={handleChange}
-                className="radio-input"
-              />
-              {type}
-            </label>
-          ))}
-        </div>
-      </div>
-
-      <div>
-        <label className="block text-sm font-semibold text-gray-700 mb-2">
-          Select Accommodation Type
-        </label>
-        <div className="accommodation-selectors">
-          <select
-            name="nights"
-            value={registerFormData.nights}
-            onChange={handleChange}
-            className="form-select w-32"
-          >
-            {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((night) => (
-              <option key={night} value={night}>
-                {night} Night{night > 1 ? 's' : ''}
-              </option>
-            ))}
-          </select>
-          <select
-            name="guests"
-            value={registerFormData.guests}
-            onChange={handleChange}
-            className="form-select w-32"
-          >
-            {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((guest) => (
-              <option key={guest} value={guest}>
-                {guest} Guest{guest > 1 ? 's' : ''}
-              </option>
-            ))}
-          </select>
-        </div>
-      </div>
-
-      <div className="payment-summary">
-        <h3 className="text-xl font-semibold mb-4">Payment Summary</h3>
-        {pricingError && <p className="error-text mb-2">{pricingError}</p>}
-        <div className="flex justify-between mb-2">
-          <span>Processing Fee in $ (5% processing fee is applicable on total amount):</span>
-          <span>{pricing ? `$${pricing.processingFee.toFixed(2)}` : 'TBD'}</span>
-        </div>
-        <div className="flex justify-between mb-4">
-          <span>Total Amount Payable in $:</span>
-          <span>{pricing ? `$${pricing.totalAmount.toFixed(2)}` : 'TBD'}</span>
-        </div>
-
-        <p className="text-sm text-gray-600 mb-4">
-          By clicking "Pay Now", you confirm that you have read the terms and conditions, that you understand them and that you agree to be bound by them.
-        </p>
-
-        <div className="captcha-section">
-          <span className="captcha-image">{captchaCode}</span>
-          <span>Enter the code above here:</span>
-          <input
-            name="captcha"
-            value={registerFormData.captcha}
-            onChange={handleChange}
-            required
-            className="form-input w-32"
-          />
-          <span className="refresh-button" onClick={generateCaptcha}>
-            🔄
-          </span>
-        </div>
-      </div>
-
-      <div className="pt-4 button-group">
-        <button
-          type="button"
-          onClick={resetForm}
-          className="w-full bg-gray-400 hover:bg-gray-500 text-white font-semibold px-8 py-4 rounded-lg text-lg transition-all"
-        >
-          Reset Form
-        </button>
-        <button
-          type="submit"
-          onClick={handleSubmit}
-          className="w-full bg-teal-600 hover:bg-teal-700 text-white font-semibold px-8 py-4 rounded-lg text-lg transition-all"
-        >
-          Pay Now
-        </button>
-      </div>
-    </form>
-  );
-};
 
 const AbstractRegistration: React.FC<{
   captchaCode: string;
@@ -857,6 +501,7 @@ const AbstractRegistration: React.FC<{
 
 const ConferenceRegistration: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'register' | 'abstract'>('register');
+  const [formStep, setFormStep] = useState<'personal' | 'payment'>('personal');
   const [captchaCode, setCaptchaCode] = useState<string>('');
   const [showModal, setShowModal] = useState(false);
   const [registerFormData, setRegisterFormData] = useState<RegisterFormData>({
@@ -917,6 +562,7 @@ const ConferenceRegistration: React.FC = () => {
       extraNights: 0,
       captcha: '',
     });
+    setFormStep('personal');
     generateCaptcha();
   };
 
@@ -962,7 +608,10 @@ const ConferenceRegistration: React.FC = () => {
             <div className="tabs">
               <div
                 className={`tab ${activeTab === 'register' ? 'active' : ''}`}
-                onClick={() => setActiveTab('register')}
+                onClick={() => {
+                  setActiveTab('register');
+                  setFormStep('personal');
+                }}
               >
                 Register
               </div>
@@ -975,14 +624,23 @@ const ConferenceRegistration: React.FC = () => {
             </div>
 
             {activeTab === 'register' ? (
-              <Register
-                captchaCode={captchaCode}
-                generateCaptcha={generateCaptcha}
-                setRegisterFormData={setRegisterFormData}
-                registerFormData={registerFormData}
-                setShowModal={setShowModal}
-                resetForm={resetRegisterForm}
-              />
+              formStep === 'personal' ? (
+                <PersonalInfoForm
+                  registerFormData={registerFormData}
+                  setRegisterFormData={setRegisterFormData}
+                  onNext={() => setFormStep('payment')}
+                />
+              ) : (
+                <PaymentInfoForm
+                  captchaCode={captchaCode}
+                  generateCaptcha={generateCaptcha}
+                  registerFormData={registerFormData}
+                  setRegisterFormData={setRegisterFormData}
+                  setShowModal={setShowModal}
+                  resetForm={resetRegisterForm}
+                  onBack={() => setFormStep('personal')}
+                />
+              )
             ) : (
               <AbstractRegistration
                 captchaCode={captchaCode}
