@@ -148,8 +148,7 @@ const Header: React.FC = () => {
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ease-in-out
-        ${isScrolled ? 'bg-gray-900/95 py-2 shadow-lg backdrop-blur-sm' : 'bg-transparent py-4'}`}
+      className={`fixed top-0 left-0 right-0 z-50 bg-black py-4 shadow-lg transition-all duration-500 ease-in-out`}
     >
       <div className="container mx-auto px-4 flex justify-between items-center">
         <div className="flex items-center">
@@ -184,13 +183,25 @@ const Header: React.FC = () => {
 
         {/* Action Buttons (Desktop) */}
         <div className="hidden md:flex items-center space-x-4">
-          {/* Registration Dropdown */}
+          {/* Register Button */}
+          <ScrollLink
+            to="register"
+            smooth={true}
+            duration={500}
+            offset={-60}
+            className="bg-amber-500 hover:bg-amber-600 text-gray-900 font-semibold px-4 py-2 rounded transition-colors duration-300 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 cursor-pointer"
+            onClick={() => handleTabNavigation('register')}
+          >
+            Register
+          </ScrollLink>
+
+          {/* Abstract Submission Dropdown */}
           <div className="relative">
             <button
               onClick={toggleDropdown}
               className="bg-amber-500 hover:bg-amber-600 text-gray-900 font-semibold px-4 py-2 rounded transition-colors duration-300 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 flex items-center"
             >
-              Registration
+              Abstract Submission
               <svg
                 className="ml-2 h-4 w-4"
                 fill="none"
@@ -209,17 +220,7 @@ const Header: React.FC = () => {
             {dropdownOpen && (
               <div className="absolute top-full mt-2 bg-gray-900 text-white rounded shadow-lg min-w-[180px]">
                 <ScrollLink
-                  to="register"
-                  smooth={true}
-                  duration={500}
-                  offset={-60}
-                  className="block px-4 py-2 hover:bg-gray-800 transition-colors duration-300 ease-in-out cursor-pointer"
-                  onClick={() => handleTabNavigation('register')}
-                >
-                  Register
-                </ScrollLink>
-                <ScrollLink
-                  to="register"
+                  to="abstract"
                   smooth={true}
                   duration={500}
                   offset={-60}
@@ -228,17 +229,19 @@ const Header: React.FC = () => {
                 >
                   Abstract Submission
                 </ScrollLink>
+                <ScrollLink
+                  to="sessions"
+                  smooth={true}
+                  duration={500}
+                  offset={-60}
+                  className="block px-4 py-2 hover:bg-gray-800 transition-colors duration-300 ease-in-out cursor-pointer"
+                  onClick={() => handleTabNavigation('sessions')}
+                >
+                  Sessions
+                </ScrollLink>
               </div>
             )}
           </div>
-
-          {/* Partner Button */}
-          <RouterLink
-            to="/partner"
-            className="bg-amber-500 hover:bg-amber-600 text-gray-900 font-semibold px-4 py-2 rounded transition-colors duration-300 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
-          >
-            Partner
-          </RouterLink>
         </div>
 
         {/* Mobile Menu Button */}
@@ -271,7 +274,7 @@ const Header: React.FC = () => {
 
       {/* Mobile Menu */}
       <div
-        className={`md:hidden bg-gray-900 overflow-hidden transition-[max-height,opacity] duration-500 ease-in-out
+        className={`md:hidden bg-black overflow-hidden transition-[max-height,opacity] duration-500 ease-in-out
           ${mobileMenuOpen ? 'max-h-screen opacity-100 py-4 px-4' : 'max-h-0 opacity-0 py-0 px-4'}`}
         aria-hidden={!mobileMenuOpen}
       >
@@ -295,12 +298,27 @@ const Header: React.FC = () => {
           ))}
         </nav>
         <div className="mt-4 flex flex-col space-y-2">
-          {/* Registration Dropdown in Mobile */}
+          {/* Register Button */}
+          <ScrollLink
+            to="register"
+            smooth={true}
+            duration={500}
+            offset={-60}
+            className="bg-amber-500 hover:bg-amber-600 text-gray-900 font-semibold px-4 py-2 rounded text-center transition-colors duration-300 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
+            onClick={() => {
+              handleTabNavigation('register');
+              setMobileMenuOpen(false);
+            }}
+          >
+            Register
+          </ScrollLink>
+
+          {/* Abstract Submission Dropdown */}
           <button
             onClick={toggleDropdown}
             className="bg-amber-500 hover:bg-amber-600 text-gray-900 font-semibold px-4 py-2 rounded text-center transition-colors duration-300 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 flex justify-center items-center"
           >
-            Registration
+            Abstract Submission
             <svg
               className="ml-2 h-4 w-4"
               fill="none"
@@ -319,36 +337,33 @@ const Header: React.FC = () => {
           {dropdownOpen && (
             <div className="flex flex-col space-y-2 pl-4">
               <ScrollLink
-                to="register"
+                to="abstract"
                 smooth={true}
                 duration={500}
                 offset={-60}
                 className="text-white hover:text-amber-400 transition-colors duration-300 ease-in-out"
-                onClick={() => handleTabNavigation('register')}
-              >
-                Register
-              </ScrollLink>
-              <ScrollLink
-                to="register"
-                smooth={true}
-                duration={500}
-                offset={-60}
-                className="text-white hover:text-amber-400 transition-colors duration-300 ease-in-out"
-                onClick={() => handleTabNavigation('abstract')}
+                onClick={() => {
+                  handleTabNavigation('abstract');
+                  setMobileMenuOpen(false);
+                }}
               >
                 Abstract Submission
               </ScrollLink>
+              <ScrollLink
+                to="sessions"
+                smooth={true}
+                duration={500}
+                offset={-60}
+                className="text-white hover:text-amber-400 transition-colors duration-300 ease-in-out"
+                onClick={() => {
+                  handleTabNavigation('sessions');
+                  setMobileMenuOpen(false);
+                }}
+              >
+                Sessions
+              </ScrollLink>
             </div>
           )}
-
-          {/* Partner Button */}
-          <RouterLink
-            to="/partner"
-            className="bg-amber-500 hover:bg-amber-600 text-gray-900 font-semibold px-4 py-2 rounded text-center transition-colors duration-300 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
-            onClick={() => setMobileMenuOpen(false)}
-          >
-            Partner
-          </RouterLink>
         </div>
       </div>
     </header>
