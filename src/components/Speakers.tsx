@@ -61,7 +61,7 @@ const Speakers: React.FC = () => {
         
         <div className="mt-16 text-center">
           <a 
-            href="#all-speakers" 
+            href="speakers" 
             className="inline-block bg-amber-500 hover:bg-amber-600 text-gray-900 font-semibold px-8 py-3 rounded-md text-lg transition-colors"
           >
             View All Speakers
