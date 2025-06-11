@@ -35,7 +35,6 @@ import Speakers from '../components/Speakers';
 import Agenda from '../components/Agenda';
 import FAQ from '../components/FAQ';
 import Register from '../components/Register';
-import Videos from '../components/videos';
 
 const Home: React.FC = () => {
   return (
@@ -46,7 +45,7 @@ const Home: React.FC = () => {
       <Features />
       <Speakers />
       <Agenda />
-      <Videos />
+      
       <FAQ />
       <div id="register">
         <Register />

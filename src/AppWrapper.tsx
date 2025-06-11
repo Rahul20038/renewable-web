@@ -19,7 +19,7 @@ import AdminBookings from './Admin/AdminBookings';
 import AdminAbstractSubmissions from './Admin/AdminAbstractSubmissions';
 import AdminManageEvents from './Admin/AdminManageEvents';
 import AdminInterests from './Admin/AdminInterests';
-
+import PreviousEdition from './pages/PreviousEdition';
 import { useAdminUserContext } from './Context/AdminUserContext';
 
 const AppWrapper = () => {
@@ -57,6 +57,7 @@ const AppWrapper = () => {
           <Route path="/admin-bookings" element={<AdminBookings />} />
           <Route path="/admin-abstract-submissions" element={<AdminAbstractSubmissions />} />
           <Route path="/admin-manage-events" element={<AdminManageEvents />} />
+          <Route path="/previous-edition" element={<PreviousEdition />} />
           <Route path="/admin-interests" element={<AdminInterests />} />
         </Routes>
       </main>
