@@ -58,8 +58,8 @@ const PaymentInfoForm: React.FC<PaymentInfoFormProps> = ({
         body: JSON.stringify({
           registrationType: registerFormData.registrationType.toUpperCase().replace('AND', '_'),
           presentationType: registerFormData.presentationType.toUpperCase(),
-          numberOfNights: registerFormData.nights,
-          numberOfGuests: registerFormData.guests,
+          numberOfNights: registerFormData.registrationType === 'registrationAndAccommodation' ? registerFormData.nights : 0,
+          numberOfGuests: registerFormData.registrationType === 'registrationAndAccommodation' ? registerFormData.guests : 0,
         }),
       });
 
@@ -82,8 +82,6 @@ const PaymentInfoForm: React.FC<PaymentInfoFormProps> = ({
   }, [
     registerFormData.registrationType,
     registerFormData.presentationType,
-    registerFormData.nights,
-    registerFormData.guests,
   ]);
 
   const handleChange = (
@@ -91,6 +89,9 @@ const PaymentInfoForm: React.FC<PaymentInfoFormProps> = ({
   ) => {
     const { name, value } = e.target;
     setRegisterFormData((prev) => ({ ...prev, [name]: parseInt(value) || value }));
+    if (name === 'nights' || name === 'guests') {
+      fetchPricing();
+    }
   };
 
   const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -117,50 +118,54 @@ const PaymentInfoForm: React.FC<PaymentInfoFormProps> = ({
 
   return (
     <form className="space-y-6" onSubmit={handleSubmit}>
-      <div>
-        <label className="block text-sm font-semibold text-gray-700 mb-2">
-          Select Accommodation Type
-        </label>
-        <div className="accommodation-selectors">
-          <select
-            name="nights"
-            value={registerFormData.nights}
-            onChange={handleChange}
-            className="form-select w-32"
-          >
-            {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((night) => (
-              <option key={night} value={night}>
-                {night} Night{night > 1 ? 's' : ''}
-              </option>
-            ))}
-          </select>
-          <select
-            name="guests"
-            value={registerFormData.guests}
-            onChange={handleChange}
-            className="form-select w-32"
-          >
-            {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((guest) => (
-              <option key={guest} value={guest}>
-                {guest} Guest{guest > 1 ? 's' : ''}
-              </option>
-            ))}
-          </select>
+      {registerFormData.registrationType === 'registrationAndAccommodation' && (
+        <div>
+          <label className="block text-sm font-semibold text-gray-700 mb-2">
+            Select Accommodation Type
+          </label>
+          <div className="accommodation-selectors">
+            <select
+              name="nights"
+              value={registerFormData.nights}
+              onChange={handleChange}
+              className="form-select w-32"
+            >
+              {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((night) => (
+                <option key={night} value={night}>
+                  {night} Night{night > 1 ? 's' : ''}
+                </option>
+              ))}
+            </select>
+            <select
+              name="guests"
+              value={registerFormData.guests}
+              onChange={handleChange}
+              className="form-select w-32"
+            >
+              {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((guest) => (
+                <option key={guest} value={guest}>
+                  {guest} Guest{guest > 1 ? 's' : ''}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
-      </div>
+      )}
 
-      <div>
-        <label className="flex items-center gap-2">
-          <input
-            type="checkbox"
-            name="accompanyingPerson"
-            checked={registerFormData.accompanyingPerson}
-            onChange={handleCheckboxChange}
-            className="custom-checkbox"
-          />
-          Accompanying Person
-        </label>
-      </div>
+      {registerFormData.registrationType === 'registrationAndAccommodation' && (
+        <div>
+          <label className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              name="accompanyingPerson"
+              checked={registerFormData.accompanyingPerson}
+              onChange={handleCheckboxChange}
+              className="custom-checkbox"
+            />
+            Accompanying Person
+          </label>
+        </div>
+      )}
 
       <div className="payment-summary">
         <h3 className="text-xl font-semibold mb-4">Payment Summary</h3>
