@@ -1,5 +1,5 @@
 import React from 'react';
-import { InfiniteSlider } from '@/components/ui/infinite-slider';
+import { InfiniteSlider } from '../components/ui/infinite-slider';
 import c from '@/assets/images/c.png';
 import amazon from '@/assets/images/amazon.png';
 import apple from '@/assets/images/apple.png';

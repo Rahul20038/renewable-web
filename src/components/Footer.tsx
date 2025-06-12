@@ -2,7 +2,7 @@
 
 import React from "react";
 import { Sun } from "lucide-react";
-import { WorldMap } from "@/components/ui/world-map";
+import { WorldMap } from "../components/ui/world-map";
 import { motion } from "framer-motion";
 
 const Footer: React.FC = () => {

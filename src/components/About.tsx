@@ -16,7 +16,7 @@ import {
   Stamp,
 } from "phosphor-react";
 import { Calendar, MapPin, Clock, FileText, Users, Star } from "lucide-react";
-import { useLucideDrawerAnimation } from "@/components/ui/lucide-icon-drawer";
+import { useLucideDrawerAnimation } from "../components/ui/lucide-icon-drawer";
 import { motion } from "framer-motion";
 
 const industries = [
