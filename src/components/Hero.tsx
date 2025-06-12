@@ -536,7 +536,7 @@
 import { useEffect, useState } from "react";
 import { Helmet } from "react-helmet";
 import Card from "./ui/globe"; // Import the Card component from globe.tsx
-
+import Typewriter from 'typewriter-effect';
 const Hero: React.FC = () => {
   const [isMobile, setIsMobile] = useState(false);
 
@@ -567,9 +567,18 @@ const Hero: React.FC = () => {
           Renewable Energy <br className="hidden md:block" />
           Conference
         </h1>
-        <h2 className="text-2xl md:text-3xl font-light text-amber-400 mb-8">
-          Venue, United States • June 12–15, 2026
-        </h2>
+
+        <h3 className="text-1xl md:text-2xl font-light text-amber-400 mb-8 leading-snug">
+  Manhattan, New York, NY 10019, USA
+</h3>
+<h2 className="text-1xl md:text-2xl font-light text-gray-300 mb-8 leading-snug">
+  Novotel NY – Times Square
+</h2>
+
+
+
+
+
         <div className="flex flex-wrap gap-4">
           <a
             href="#register"
@@ -593,6 +602,7 @@ const Hero: React.FC = () => {
       </div>
     </div>
   </div>
+ 
 </section>
     </>
   );

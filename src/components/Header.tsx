@@ -56,7 +56,6 @@ const Header: React.FC = () => {
             { to: '/speakers', label: 'Speakers' },
             { to: '/agenda', label: 'Agenda 2026' },
             { to: '/gallery', label: 'Gallery' },
-            { to: '/partners', label: 'Partners' },
             { to: '/contact', label: 'Contact' },
           ].map(({ to, label }) => (
             <RouterLink
@@ -67,6 +66,13 @@ const Header: React.FC = () => {
               {label}
             </RouterLink>
           ))}
+          {/* Previous Edition Button */}
+          <RouterLink
+            to="/previous-edition"
+            className="bg-amber-500 hover:bg-amber-600 text-gray-900 font-semibold px-4 py-2 rounded transition-colors duration-300 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
+          >
+            Previous Edition
+          </RouterLink>
         </nav>
 
         {/* Action Buttons (Desktop) */}
@@ -169,7 +175,6 @@ const Header: React.FC = () => {
             { to: '/speakers', label: 'Speakers' },
             { to: '/agenda', label: 'Agenda 2026' },
             { to: '/gallery', label: 'Gallery' },
-            { to: '/partners', label: 'Partners' },
             { to: '/contact', label: 'Contact' },
           ].map(({ to, label }) => (
             <RouterLink
@@ -181,6 +186,14 @@ const Header: React.FC = () => {
               {label}
             </RouterLink>
           ))}
+          {/* Previous Edition Button */}
+          <RouterLink
+            to="/previous-edition"
+            className="bg-amber-500 hover:bg-amber-600 text-gray-900 font-semibold px-4 py-2 rounded text-center transition-colors duration-300 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
+            onClick={() => setMobileMenuOpen(false)}
+          >
+            Previous Edition
+          </RouterLink>
         </nav>
         <div className="mt-4 flex flex-col space-y-2">
           {/* Register Button */}

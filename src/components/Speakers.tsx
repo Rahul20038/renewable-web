@@ -37,7 +37,7 @@ const speakers: Speaker[] = [
 const Speakers: React.FC = () => {
   return (
     <section className="pt-16 pb-8 md:pt-24 md:pb-12 bg-white">
-      <div className="container mx-auto px-4">
+      <div className="container mx-auto px-4      npm install @mui/material @emotion/react @emotion/styled">
         <h2 className="text-3xl md:text-4xl font-bold text-center text-gray-900 mb-16">
           Confirmed Speakers 2026
         </h2>
@@ -61,7 +61,7 @@ const Speakers: React.FC = () => {
         
         <div className="mt-16 text-center">
           <a 
-            href="#all-speakers" 
+            href="speakers" 
             className="inline-block bg-amber-500 hover:bg-amber-600 text-gray-900 font-semibold px-8 py-3 rounded-md text-lg transition-colors"
           >
             View All Speakers
