@@ -1,228 +1,441 @@
-import React, { useState, useEffect } from 'react';
-
-interface RegisterFormData {
-  title: string;
-  name: string;
-  phone: string;
-  email: string;
-  institute: string;
-  country: string;
-  registrationType: string;
-  presentationType: string;
-  guests: number;
-  nights: number;
-  accompanyingPerson: boolean;
-  extraNights: number;
-  captcha: string;
-}
+import React, { useEffect, useState } from 'react';
 
 interface PricingConfig {
   processingFee: number;
   totalAmount: number;
+  pricingConfigId?: number;
 }
 
-interface PaymentInfoFormProps {
-  captchaCode: string;
-  generateCaptcha: () => void;
-  registerFormData: RegisterFormData;
-  setRegisterFormData: React.Dispatch<React.SetStateAction<RegisterFormData>>;
-  setShowModal: React.Dispatch<React.SetStateAction<boolean>>;
-  resetForm: () => void;
-  onBack: () => void;
+interface PaymentConfig {
+  paymentGateway: string;
+  currency: string;
+  transactionFee: number;
 }
 
-const PaymentInfoForm: React.FC<PaymentInfoFormProps> = ({
-  captchaCode,
-  generateCaptcha,
-  registerFormData,
-  setRegisterFormData,
-  setShowModal,
-  resetForm,
-  onBack,
-}) => {
+const PricingPreviewForm: React.FC = () => {
+  const [form, setForm] = useState({
+    prefix: '',
+    name: '',
+    phone: '',
+    email: '',
+    instituteOrUniversity: '',
+    country: '',
+    registrationType: 'REGISTRATION_ONLY',
+    presentationType: 'STUDENT',
+    nights: 1,
+    guests: 1,
+    accompanyingPerson: false,
+    captcha: '',
+  });
+
   const [pricing, setPricing] = useState<PricingConfig | null>(null);
-  const [pricingError, setPricingError] = useState<string>('');
+  const [paymentConfig, setPaymentConfig] = useState<PaymentConfig | null>(null);
+  const [captchaCode, setCaptchaCode] = useState('');
+  const [error, setError] = useState('');
+  const [registrationStatus, setRegistrationStatus] = useState('');
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
-  const fetchPricing = async () => {
-    if (!registerFormData.registrationType || !registerFormData.presentationType) {
-      setPricing(null);
-      return;
+  const prefixOptions = ['Dr.', 'Mr.', 'Ms.', 'Mrs.', 'Prof.'];
+
+  const generateCaptcha = () => {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let code = '';
+    for (let i = 0; i < 6; i++) {
+      code += chars.charAt(Math.floor(Math.random() * chars.length));
     }
-
-    try {
-      const response = await fetch('https://renewable-be.onrender.com/api/registration/get-pricing-config', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          registrationType: registerFormData.registrationType.toUpperCase().replace('AND', '_'),
-          presentationType: registerFormData.presentationType.toUpperCase(),
-          numberOfNights: registerFormData.registrationType === 'registrationAndAccommodation' ? registerFormData.nights : 0,
-          numberOfGuests: registerFormData.registrationType === 'registrationAndAccommodation' ? registerFormData.guests : 0,
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch pricing');
-      }
-
-      const data: PricingConfig = await response.json();
-      setPricing(data);
-      setPricingError('');
-    } catch (error) {
-      console.error('Error fetching pricing:', error);
-      setPricing(null);
-      setPricingError('Unable to load pricing details. Please try again.');
-    }
+    setCaptchaCode(code);
   };
 
   useEffect(() => {
-    fetchPricing();
-  }, [
-    registerFormData.registrationType,
-    registerFormData.presentationType,
-  ]);
+    generateCaptcha();
+  }, []);
+
+  useEffect(() => {
+    const fetchPricingAndPaymentConfig = async () => {
+      const { registrationType, presentationType, nights, guests } = form;
+
+      const payload: any = {
+        registrationType,
+        presentationType,
+      };
+
+      if (registrationType === 'REGISTRATION_AND_ACCOMMODATION') {
+        payload.numberOfNights = nights;
+        payload.numberOfGuests = guests;
+      }
+
+      try {
+        // Fetch Pricing Config
+        const pricingResponse = await fetch('https://renewable-be.onrender.com/api/registration/get-pricing-config', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+
+        if (!pricingResponse.ok) throw new Error(`Pricing fetch failed: ${pricingResponse.status} ${pricingResponse.statusText}`);
+
+        const pricingResult = await pricingResponse.json();
+
+        if (!Array.isArray(pricingResult) || pricingResult.length === 0) throw new Error('No pricing found');
+
+        const pricingItem = pricingResult[0];
+        const base = pricingItem.presentationType?.price || 0;
+        const acc = pricingItem.accommodationOption?.price || 0;
+        const subtotal = base + acc;
+        const processing = (subtotal * pricingItem.processingFeePercent) / 100;
+        const total = subtotal + processing;
+
+        setPricing({ processingFee: processing, totalAmount: total, pricingConfigId: pricingItem.id || 26 });
+
+        // Fetch Payment Config
+        const paymentResponse = await fetch('https://renewable-be.onrender.com/api/registration/get-payment-config', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+
+        if (!paymentResponse.ok) throw new Error(`Payment config fetch failed: ${paymentResponse.status} ${paymentResponse.statusText}`);
+
+        const paymentResult = await paymentResponse.json();
+        setPaymentConfig({
+          paymentGateway: paymentResult.paymentGateway || 'Stripe',
+          currency: paymentResult.currency || 'USD',
+          transactionFee: paymentResult.transactionFee || 0,
+        });
+
+        setError('');
+      } catch (err: any) {
+        console.error('Fetch error:', err.message);
+        setPricing(null);
+        setPaymentConfig(null);
+        setError(`Configuration unavailable: ${err.message}. Try again later.`);
+      }
+    };
+
+    fetchPricingAndPaymentConfig();
+  }, [form.registrationType, form.presentationType, form.nights, form.guests]);
+
+  const validateFields = () => {
+    const errors: Record<string, string> = {};
+    const { prefix, name, phone, email, instituteOrUniversity, country, captcha } = form;
+
+    if (!prefix) errors.prefix = 'Prefix is required';
+    if (!name) errors.name = 'Name is required';
+    if (!phone || !/^\+?\d{10,15}$/.test(phone)) errors.phone = 'Valid phone number (10-15 digits) is required';
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errors.email = 'Valid email is required';
+    if (!instituteOrUniversity) errors.instituteOrUniversity = 'Institute/University is required';
+    if (!country) errors.country = 'Country is required';
+    if (!captcha) errors.captcha = 'CAPTCHA is required';
+
+    setFieldErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
-    setRegisterFormData((prev) => ({ ...prev, [name]: parseInt(value) || value }));
-    if (name === 'nights' || name === 'guests') {
-      fetchPricing();
-    }
+    const val = name === 'guests' || name === 'nights' ? Number(value) : value;
+    setForm((prev) => ({ ...prev, [name]: val }));
+    setFieldErrors((prev) => ({ ...prev, [name]: '' }));
   };
 
   const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, checked } = e.target;
-    setRegisterFormData((prev) => ({ ...prev, [name]: checked }));
+    setForm((prev) => ({ ...prev, [e.target.name]: e.target.checked }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (registerFormData.captcha.toLowerCase() !== captchaCode.toLowerCase()) {
-      alert('Invalid CAPTCHA code');
+    if (!validateFields()) {
+      setRegistrationStatus('Please correct the form errors.');
       return;
     }
 
-    if (!pricing) {
-      alert('Pricing details are not available. Please try again.');
+    if (form.captcha.toLowerCase() !== captchaCode.toLowerCase()) {
+      setFieldErrors((prev) => ({ ...prev, captcha: 'Incorrect CAPTCHA' }));
+      setRegistrationStatus('Incorrect CAPTCHA. Please try again.');
       return;
     }
 
-    console.log('Register Form submitted:', { ...registerFormData, pricing });
-    setShowModal(true);
+    if (!pricing || !paymentConfig) {
+      setRegistrationStatus('Pricing or payment configuration not available.');
+      return;
+    }
+
+    const registrationPayload = {
+      name: `${form.prefix} ${form.name}`.trim(),
+      phone: form.phone,
+      email: form.email,
+      instituteOrUniversity: form.instituteOrUniversity,
+      country: form.country,
+      registrationType: form.registrationType,
+      presentationType: form.presentationType,
+      nights: form.registrationType === 'REGISTRATION_AND_ACCOMMODATION' ? form.nights : 0,
+      guests: form.registrationType === 'REGISTRATION_AND_ACCOMMODATION' ? form.guests : 0,
+      accompanyingPerson: form.accompanyingPerson,
+      pricingConfig: { id: pricing.pricingConfigId || 26 },
+      paymentConfig: {
+        paymentGateway: paymentConfig.paymentGateway,
+        currency: paymentConfig.currency,
+        transactionFee: paymentConfig.transactionFee,
+      },
+      amountPaid: pricing.totalAmount + paymentConfig.transactionFee,
+      registrationDate: new Date().toISOString(),
+    };
+
+    try {
+      console.log('Sending registration payload:', registrationPayload);
+      const response = await fetch('https://renewable-be.onrender.com/api/registration/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(registrationPayload),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(`Registration failed: ${response.status} ${response.statusText} - ${errorData.error || 'Unknown error'}`);
+      }
+
+      const result = await response.json();
+      setRegistrationStatus(`✅ Registration successful! ID: ${result.id || 'N/A'}`);
+      setForm({
+        prefix: '',
+        name: '',
+        phone: '',
+        email: '',
+        instituteOrUniversity: '',
+        country: '',
+        registrationType: 'REGISTRATION_ONLY',
+        presentationType: 'STUDENT',
+        nights: 1,
+        guests: 1,
+        accompanyingPerson: false,
+        captcha: '',
+      });
+      setFieldErrors({});
+      generateCaptcha();
+    } catch (err: any) {
+      console.error('Registration error:', err.message);
+      setRegistrationStatus(`❌ Registration failed: ${err.message}. Payload: ${JSON.stringify(registrationPayload)}`);
+    }
   };
 
   return (
-    <form className="space-y-6" onSubmit={handleSubmit}>
-      {registerFormData.registrationType === 'registrationAndAccommodation' && (
-        <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-2">
-            Select Accommodation Type
-          </label>
-          <div className="accommodation-selectors">
-            <select
-              name="nights"
-              value={registerFormData.nights}
-              onChange={handleChange}
-              className="form-select w-32"
-            >
-              {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((night) => (
-                <option key={night} value={night}>
-                  {night} Night{night > 1 ? 's' : ''}
-                </option>
-              ))}
-            </select>
-            <select
-              name="guests"
-              value={registerFormData.guests}
-              onChange={handleChange}
-              className="form-select w-32"
-            >
-              {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((guest) => (
-                <option key={guest} value={guest}>
-                  {guest} Guest{guest > 1 ? 's' : ''}
-                </option>
-              ))}
-            </select>
+    <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+      <form onSubmit={handleSubmit} className="max-w-md w-full mx-auto p-6 space-y-6 shadow-md bg-white rounded-xl">
+        <h2 className="text-2xl font-bold text-center">Conference Registration</h2>
+
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold">User Details</h3>
+          <div className="grid grid-cols-3 gap-4">
+            <div>
+              <select
+                name="prefix"
+                value={form.prefix}
+                onChange={handleChange}
+                className={`form-select w-full ${fieldErrors.prefix ? 'border-red-500' : ''}`}
+                required
+              >
+                <option value="">Select Prefix</option>
+                {prefixOptions.map((option) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </select>
+              {fieldErrors.prefix && <p className="text-red-500 text-sm">{fieldErrors.prefix}</p>}
+            </div>
+            <div className="col-span-2">
+              <input
+                type="text"
+                name="name"
+                placeholder="Full Name"
+                value={form.name}
+                onChange={handleChange}
+                className={`form-input w-full ${fieldErrors.name ? 'border-red-500' : ''}`}
+                required
+              />
+              {fieldErrors.name && <p className="text-red-500 text-sm">{fieldErrors.name}</p>}
+            </div>
           </div>
-        </div>
-      )}
-
-      {registerFormData.registrationType === 'registrationAndAccommodation' && (
-        <div>
-          <label className="flex items-center gap-2">
+          <div>
             <input
-              type="checkbox"
-              name="accompanyingPerson"
-              checked={registerFormData.accompanyingPerson}
-              onChange={handleCheckboxChange}
-              className="custom-checkbox"
+              type="tel"
+              name="phone"
+              placeholder="Phone Number (e.g., +1234567890)"
+              value={form.phone}
+              onChange={handleChange}
+              className={`form-input w-full ${fieldErrors.phone ? 'border-red-500' : ''}`}
+              required
             />
-            Accompanying Person
-          </label>
-        </div>
-      )}
+            {fieldErrors.phone && <p className="text-red-500 text-sm">{fieldErrors.phone}</p>}
+          </div>
+          <div>
+            <input
+              type="email"
+              name="email"
+              placeholder="Email Address"
+              value={form.email}
+              onChange={handleChange}
+              className={`form-input w-full ${fieldErrors.email ? 'border-red-500' : ''}`}
+              required
+            />
+            {fieldErrors.email && <p className="text-red-500 text-sm">{fieldErrors.email}</p>}
+          </div>
+          <div>
+            <input
+              type="text"
+              name="instituteOrUniversity"
+              placeholder="Institute/University"
+              value={form.instituteOrUniversity}
+              onChange={handleChange}
+              className={`form-input w-full ${fieldErrors.instituteOrUniversity ? 'border-red-500' : ''}`}
+              required
+            />
+            {fieldErrors.instituteOrUniversity && <p className="text-red-500 text-sm">{fieldErrors.instituteOrUniversity}</p>}
+          </div>
+          <div>
+            <input
+              type="text"
+              name="country"
+              placeholder="Country"
+              value={form.country}
+              onChange={handleChange}
+              className={`form-input w-full ${fieldErrors.country ? 'border-red-500' : ''}`}
+              required
+            />
+            {fieldErrors.country && <p className="text-red-500 text-sm">{fieldErrors.country}</p>}
+          </div>
 
-      <div className="payment-summary">
-        <h3 className="text-xl font-semibold mb-4">Payment Summary</h3>
-        {pricingError && <p className="error-text mb-2">{pricingError}</p>}
-        <div className="flex justify-between mb-2">
-          <span>Processing Fee in $ (5% processing fee is applicable on total amount):</span>
-          <span>{pricing ? `$${pricing.processingFee.toFixed(2)}` : 'TBD'}</span>
-        </div>
-        <div className="flex justify-between mb-4">
-          <span>Total Amount Payable in $:</span>
-          <span>{pricing ? `$${pricing.totalAmount.toFixed(2)}` : 'TBD'}</span>
-        </div>
-
-        <p className="text-sm text-gray-600 mb-4">
-          By clicking "Pay Now", you confirm that you have read the terms and conditions, that you understand them and that you agree to be bound by them.
-        </p>
-
-        <div className="captcha-section">
-          <span className="captcha-image">{captchaCode}</span>
-          <span>Enter the code above here:</span>
-          <input
-            name="captcha"
-            value={registerFormData.captcha}
+          <h3 className="text-lg font-semibold">Registration Options</h3>
+          <select
+            name="registrationType"
+            value={form.registrationType}
             onChange={handleChange}
-            required
-            className="form-input w-32"
-          />
-          <span className="refresh-button" onClick={generateCaptcha}>
-            🔄
-          </span>
-        </div>
-      </div>
+            className="form-select w-full"
+          >
+            <option value="REGISTRATION_ONLY">Registration Only</option>
+            <option value="REGISTRATION_AND_ACCOMMODATION">Registration + Accommodation</option>
+          </select>
 
-      <div className="pt-4 button-group">
-        <button
-          type="button"
-          onClick={onBack}
-          className="w-full bg-gray-400 hover:bg-gray-500 text-white font-semibold px-8 py-4 rounded-lg text-lg transition-all"
-        >
-          Back
-        </button>
-        <button
-          type="button"
-          onClick={resetForm}
-          className="w-full bg-gray-400 hover:bg-gray-500 text-white font-semibold px-8 py-4 rounded-lg text-lg transition-all"
-        >
-          Reset Form
-        </button>
+          <select
+            name="presentationType"
+            value={form.presentationType}
+            onChange={handleChange}
+            className="form-select w-full"
+          >
+            <option value="STUDENT">Student</option>
+            <option value="RESEARCHER">Researcher</option>
+            <option value="INDUSTRY">Industry</option>
+          </select>
+
+          {form.registrationType === 'REGISTRATION_AND_ACCOMMODATION' && (
+            <div className="grid grid-cols-2 gap-4">
+              <select
+                name="nights"
+                value={form.nights}
+                onChange={handleChange}
+                className="form-select"
+              >
+                {[...Array(10)].map((_, i) => (
+                  <option key={i + 1} value={i + 1}>
+                    {i + 1} Night{i > 0 ? 's' : ''}
+                  </option>
+                ))}
+              </select>
+
+              <select
+                name="guests"
+                value={form.guests}
+                onChange={handleChange}
+                className="form-select"
+              >
+                {[...Array(5)].map((_, i) => (
+                  <option key={i + 1} value={i + 1}>
+                    {i + 1} Guest{i > 0 ? 's' : ''}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
+          {form.registrationType === 'REGISTRATION_AND_ACCOMMODATION' && (
+            <label className="flex items-center gap-2 text-sm">
+              <input
+                type="checkbox"
+                name="accompanyingPerson"
+                checked={form.accompanyingPerson}
+                onChange={handleCheckboxChange}
+              />
+              Include Accompanying Person
+            </label>
+          )}
+        </div>
+
+        <div className="border-t pt-4 mt-4 space-y-2">
+          <h3 className="text-lg font-semibold">Pricing & Payment Summary</h3>
+          {error && <p className="text-red-500">{error}</p>}
+          <div className="flex justify-between">
+            <span>Processing Fee:</span>
+            <span>{pricing ? `$${pricing.processingFee.toFixed(2)}` : 'TBD'}</span>
+          </div>
+          <div className="flex justify-between">
+            <span>Transaction Fee:</span>
+            <span>{paymentConfig ? `$${paymentConfig.transactionFee.toFixed(2)}` : 'TBD'}</span>
+          </div>
+          <div className="flex justify-between font-semibold text-lg">
+            <span>Total Amount:</span>
+            <span>{pricing && paymentConfig ? `$${(pricing.totalAmount + paymentConfig.transactionFee).toFixed(2)}` : 'TBD'}</span>
+          </div>
+          {paymentConfig && (
+            <div className="text-sm text-gray-600">
+              <p>Payment Gateway: {paymentConfig.paymentGateway}</p>
+              <p>Currency: {paymentConfig.currency}</p>
+            </div>
+          )}
+        </div>
+
+        <div className="space-y-2">
+          <h3 className="text-lg font-semibold">CAPTCHA Verification</h3>
+          <div className="flex items-center gap-4">
+            <span className="bg-gray-100 font-mono px-4 py-2 rounded border text-lg">{captchaCode}</span>
+            <input
+              type="text"
+              name="captcha"
+              placeholder="Enter CAPTCHA"
+              value={form.captcha}
+              onChange={handleChange}
+              className={`form-input w-full ${fieldErrors.captcha ? 'border-red-500' : ''}`}
+              required
+            />
+            <button
+              type="button"
+              onClick={generateCaptcha}
+              className="text-blue-500 text-sm hover:underline"
+            >
+              Refresh 🔄
+            </button>
+          </div>
+          {fieldErrors.captcha && <p className="text-red-500 text-sm">{fieldErrors.captcha}</p>}
+        </div>
+
         <button
           type="submit"
-          className="w-full bg-teal-600 hover:bg-teal-700 text-white font-semibold px-8 py-4 rounded-lg text-lg transition-all"
+          className="w-full bg-green-600 text-white font-semibold py-3 rounded-lg hover:bg-green-700 transition"
+          disabled={!pricing || !paymentConfig}
         >
-          Pay Now
+          Submit & Register
         </button>
-      </div>
-    </form>
+
+        {registrationStatus && (
+          <p className={`text-center ${registrationStatus.includes('successful') ? 'text-green-600' : 'text-red-500'}`}>
+            {registrationStatus}
+          </p>
+        )}
+      </form>
+    </div>
   );
 };
 
-export default PaymentInfoForm;
+export default PricingPreviewForm;
