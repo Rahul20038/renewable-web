@@ -90,7 +90,7 @@ const Hero: React.FC = () => {
       </section>
 
       {/* Inline Styles */}
-      <style jsx>{`
+      <style>{`
         @keyframes fadeIn {
           from {
             opacity: 0;
