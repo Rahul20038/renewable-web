@@ -1,4 +1,3 @@
-// Header.tsx
 import React, { useState, useEffect } from 'react';
 import { Sun } from 'lucide-react';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
@@ -22,8 +21,8 @@ const Header: React.FC = () => {
   const handleTabNavigation = (tab: string) => {
     setDropdownOpen(false);
     setMobileMenuOpen(false);
-    // Navigate to the root path with the tab query parameter
-    navigate(`/?tab=${tab}`);
+    // Navigate to the register page with the tab query parameter
+    navigate(`/register?tab=${tab}`);
     // Dispatch a custom event to notify ConferenceRegistration to switch tabs
     window.dispatchEvent(new CustomEvent('tabChange', { detail: { tab } }));
   };
@@ -32,6 +31,7 @@ const Header: React.FC = () => {
     console.log("Sessions link clicked, navigating to /conference-topics");
     setDropdownOpen(false);
     setMobileMenuOpen(false);
+    navigate('/conference-topics');
   };
 
   return (
@@ -66,7 +66,6 @@ const Header: React.FC = () => {
               {label}
             </RouterLink>
           ))}
-          {/* Previous Edition Button */}
           <RouterLink
             to="/previous-edition"
             className="bg-amber-500 hover:bg-amber-600 text-gray-900 font-semibold px-4 py-2 rounded transition-colors duration-300 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
@@ -113,16 +112,12 @@ const Header: React.FC = () => {
             </button>
             {dropdownOpen && (
               <div className="absolute top-full mt-2 bg-gray-900 text-white rounded shadow-lg min-w-[180px]">
-                <ScrollLink
-                  to="abstract"
-                  smooth={true}
-                  duration={500}
-                  offset={-60}
-                  className="block px-4 py-2 hover:bg-gray-800 transition-colors duration-300 ease-in-out cursor-pointer"
+                <button
+                  className="block w-full text-left px-4 py-2 hover:bg-gray-800 transition-colors duration-300 ease-in-out cursor-pointer"
                   onClick={() => handleTabNavigation('abstract')}
                 >
                   Abstract Submission
-                </ScrollLink>
+                </button>
                 <RouterLink
                   to="/conference-topics"
                   className="block px-4 py-2 hover:bg-gray-800 transition-colors duration-300 ease-in-out"
@@ -186,7 +181,6 @@ const Header: React.FC = () => {
               {label}
             </RouterLink>
           ))}
-          {/* Previous Edition Button */}
           <RouterLink
             to="/previous-edition"
             className="bg-amber-500 hover:bg-amber-600 text-gray-900 font-semibold px-4 py-2 rounded text-center transition-colors duration-300 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
@@ -205,7 +199,6 @@ const Header: React.FC = () => {
             className="bg-amber-500 hover:bg-amber-600 text-gray-900 font-semibold px-4 py-2 rounded text-center transition-colors duration-300 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
             onClick={() => {
               handleTabNavigation('register');
-              setMobileMenuOpen(false);
             }}
           >
             Register
@@ -234,19 +227,12 @@ const Header: React.FC = () => {
           </button>
           {dropdownOpen && (
             <div className="flex flex-col space-y-2 pl-4">
-              <ScrollLink
-                to="abstract"
-                smooth={true}
-                duration={500}
-                offset={-60}
-                className="text-white hover:text-amber-400 transition-colors duration-300 ease-in-out"
-                onClick={() => {
-                  handleTabNavigation('abstract');
-                  setMobileMenuOpen(false);
-                }}
+              <button
+                className="text-white hover:text-amber-400 transition-colors duration-300 ease-in-out text-left"
+                onClick={() => handleTabNavigation('abstract')}
               >
                 Abstract Submission
-              </ScrollLink>
+              </button>
               <RouterLink
                 to="/conference-topics"
                 className="text-white hover:text-amber-400 transition-colors duration-300 ease-in-out"

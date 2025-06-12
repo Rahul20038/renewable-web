@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom'; // Add useLocation
 import { FaSyncAlt } from 'react-icons/fa';
 
 interface RegisterFormData {
@@ -1032,6 +1033,8 @@ const ConferenceRegistration: React.FC = () => {
     captcha: '',
   });
 
+  const location = useLocation(); // Add useLocation to read query parameters
+
   const generateCaptcha = () => {
     const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
     let result = '';
@@ -1081,6 +1084,31 @@ const ConferenceRegistration: React.FC = () => {
     generateCaptcha();
   };
 
+  // Handle tab change from URL or custom event
+  useEffect(() => {
+    // Check URL query parameter
+    const params = new URLSearchParams(location.search);
+    const tab = params.get('tab');
+    // Also check for hash (for /register#abstract)
+    const hash = location.hash.replace('#', '');
+    if (tab === 'register' || tab === 'abstract') {
+      setActiveTab(tab);
+    } else if (hash === 'abstract' || hash === 'register') {
+      setActiveTab(hash as 'register' | 'abstract');
+    }
+
+    // Listen for tabChange event
+    const handleTabChange = (event: Event) => {
+      const customEvent = event as CustomEvent<{ tab: 'register' | 'abstract' }>;
+      if (customEvent.detail.tab === 'register' || customEvent.detail.tab === 'abstract') {
+        setActiveTab(customEvent.detail.tab);
+      }
+    };
+
+    window.addEventListener('tabChange', handleTabChange);
+    return () => window.removeEventListener('tabChange', handleTabChange);
+  }, [location.search, location.hash]);
+
   useEffect(() => {
     generateCaptcha();
   }, [activeTab]);
@@ -1088,7 +1116,7 @@ const ConferenceRegistration: React.FC = () => {
   return (
     <div>
       <Style />
-      <section className="bg-gradient-to-b from-gray-50 to-white">
+      <section className="bg-gradient-to-b from-gray-50 py-8 to-white">
         <div className="container mx-auto px-4 py-16 max-w-4xl">
           <div className="text-center mb-12">
             <span className="inline-block px-3 py-1 text-sm font-semibold text-black bg-gray-200 rounded-full mb-4">

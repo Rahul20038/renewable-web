@@ -20,6 +20,7 @@ import AdminAbstractSubmissions from './Admin/AdminAbstractSubmissions';
 import AdminManageEvents from './Admin/AdminManageEvents';
 import AdminInterests from './Admin/AdminInterests';
 import PreviousEdition from './pages/PreviousEdition';
+import Register from './components/Register';
 import { useAdminUserContext } from './Context/AdminUserContext';
 
 const AppWrapper = () => {
@@ -50,9 +51,9 @@ const AppWrapper = () => {
           <Route path="/partners" element={<PartnersPage />} />
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/conference-topics" element={<ConferenceTopics />} />
-          
-
-          {/* Admin Routes */}
+          <Route path="/register" element={<Register />} />
+          <Route path="/register#abstract" element={<Register />} />
+       \
           <Route path="/admin-login" element={<AdminLogin />} />
           <Route path="/admin-dashboard" element={<AdminDashboard />} />
           <Route path="/admin-accommodations" element={<AdminAccommodations />} />
@@ -61,7 +62,6 @@ const AppWrapper = () => {
           <Route path="/admin-manage-events" element={<AdminManageEvents />} />
           <Route path="/previous-edition" element={<PreviousEdition />} />
           <Route path="/admin-interests" element={<AdminInterests />} />
-          
         </Routes>
       </main>
       {!isAdminRoute && <Footer />}

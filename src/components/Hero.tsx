@@ -36,6 +36,7 @@ const Hero: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 h-full items-center w-full px-4 md:px-0">
             {/* Text Content */}
             <div className="w-full animate-fadeIn will-change-opacity will-change-transform z-10 pl-4 md:pl-12 pr-4">
+               {/* <div className="w-full animate-fadeIn will-change-opacity will-change-transform z-10 pl-8 md:pl-32 pr-4"></div> */}
               <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight mb-6">
                 The World's Premier
                 <br className="hidden md:block" />
@@ -69,7 +70,7 @@ const Hero: React.FC = () => {
                   Register Now
                 </a>
                 <a
-                  href="#abstractsubmission"
+                  href="register?tab=abstract"
                   className="bg-transparent border-2 border-amber-500 hover:bg-amber-500 hover:text-gray-900 text-amber-500 font-semibold px-8 py-3 rounded-full text-lg transition-all duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-offset-2 focus:ring-offset-black"
                   aria-label="Submit an abstract"
                 >
