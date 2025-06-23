@@ -14,9 +14,23 @@ const navItems = [
 const AdminSidebar = () => {
   const navigate = useNavigate();
   const location = useLocation();
-
-  const handleLogout = () => {
-    localStorage.removeItem('token');
+  const handleLogout = async () => {
+    // Clear session storage
+    sessionStorage.removeItem('adminUser');
+    
+    // Clear the HttpOnly cookie by calling logout endpoint (optional)
+    try {
+      await fetch('/admin/api/admin/logout', {
+        method: 'POST',
+        credentials: 'include',
+      });
+    } catch (error) {
+      console.warn('Logout endpoint not available, clearing locally');
+    }
+    
+    // Clear cookie manually (for non-HttpOnly cookies, but this won't work for HttpOnly)
+    document.cookie = 'admin_jwt=; Max-Age=0; path=/; SameSite=Lax';
+    
     navigate('/admin-login');
   };
 

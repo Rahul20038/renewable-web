@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import Sidebar from './AdminSidebar';
+import { fetchWithAuth } from '../lib/fetchWithAuth';
 
 interface Session {
   id: number;
@@ -34,11 +35,8 @@ const AdminManageEvents = () => {
   if (!title.trim()) return;
 
   try {
-    const res = await fetch(`${import.meta.env.VITE_BASE_URL}/admin/sessions`, {
+    const res = await fetchWithAuth(`${import.meta.env.VITE_BASE_URL}/admin/sessions`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
       body: JSON.stringify({ sessionOption: title }), // send only the sessionOption
     });
 

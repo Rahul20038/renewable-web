@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import Sidebar from './AdminSidebar';
+import { fetchWithAuth } from '../lib/fetchWithAuth';
 
 const AdminCombos = () => {
   const [combos, setCombos] = useState([]);
@@ -34,9 +35,8 @@ const AdminCombos = () => {
     }
 
     try {
-      const response = await fetch(`${baseUrl}/admin/api/admin/accommodation`, {
+      const response = await fetchWithAuth(`${baseUrl}/admin/api/admin/accommodation`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           nights: parseInt(nights),
           guests: parseInt(guests),

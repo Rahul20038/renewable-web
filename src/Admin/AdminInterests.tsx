@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Sidebar from './AdminSidebar';
+import { fetchWithAuth } from '../lib/fetchWithAuth';
 
 const AdminInterests = () => {
   const [interests, setInterests] = useState<string[]>([]);
@@ -40,11 +41,8 @@ const AdminInterests = () => {
   const addInterest = async () => {
     if (newInterest.trim() && !interests.includes(newInterest.trim())) {
       try {
-        const response = await fetch(`${import.meta.env.VITE_BASE_URL}/admin/interested-in`, {
+        const response = await fetchWithAuth(`${import.meta.env.VITE_BASE_URL}/admin/interested-in`, {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
           body: JSON.stringify({ interestedInOption: newInterest.trim() }),
         });
 

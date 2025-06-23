@@ -9,7 +9,6 @@ const AdminLogin = () => {
   const navigate = useNavigate();
   const baseUrl = import.meta.env.VITE_BASE_URL;
   const { setAdminUser } = useAdminUserContext();
-
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -20,21 +19,22 @@ const AdminLogin = () => {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include', // Important: send and receive cookies
         body: JSON.stringify({ email, password }),
       });
 
       if (!response.ok) {
-        const message = await response.text();
-        throw new Error(message || 'Login failed');
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Login failed');
       }
 
-      const data = await response.json();
+      const adminData = await response.json();
 
-      // Store token or user data
-      localStorage.setItem('adminData', JSON.stringify(data));
+      // Store only admin data (JWT is now in HttpOnly cookie)
+      sessionStorage.setItem('adminUser', JSON.stringify(adminData));
 
       // Update user context
-      setAdminUser(data);
+      setAdminUser(adminData);
 
       // Redirect to dashboard or admin page
       navigate('/admin-dashboard');

@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import  Sidebar from './AdminSidebar';
+import { fetchWithAuth } from '../lib/fetchWithAuth';
+
 type Booking = {
   id: number;
   name: string;
@@ -33,9 +35,8 @@ const AdminBookings = () => {
   useEffect(() => {
     const fetchBookings = async () => {
       try {
-        const res = await fetch(`${baseUrl}/admin/api/admin/registration-forms`, {
+        const res = await fetchWithAuth(`${baseUrl}/admin/api/admin/registration-forms`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({}),
         });
         if (!res.ok) throw new Error('Failed to fetch bookings');

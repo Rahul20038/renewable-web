@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import Sidebar from './AdminSidebar';
+import { fetchWithAuth } from '../lib/fetchWithAuth';
 
 interface AbstractSubmission {
   id: number;
@@ -23,7 +24,7 @@ const AdminAbstractSubmissions = () => {
   useEffect(() => {
     const fetchSubmissions = async () => {
       try {
-        const response = await fetch(`${baseUrl}/admin/api/admin/abstract-submissions`);
+        const response = await fetchWithAuth(`${baseUrl}/admin/api/admin/abstract-submissions`);
         if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
         const data = await response.json();
         setSubmissions(data);
